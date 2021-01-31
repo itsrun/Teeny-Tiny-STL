@@ -174,7 +174,6 @@ pool_alloc<threads, inst>::obj* pool_alloc<threads, inst>::refill(size_t n) {
 		curr = curr->free_list_link;
 	}
 
-
 	return (chunk);
 }
 
