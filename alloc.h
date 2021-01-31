@@ -9,8 +9,6 @@
 
 namespace lmstl {
 
-
-
 template<int inst>		//inst后续不会用到，作用是定义多个类型相同但内容不同的类。eg.<0>和<1>是不同的类，它们的static成员不同
 class malloc_alloc {	//第一类配置器
 public:
@@ -28,14 +26,12 @@ private:
 	static voidFuncPtr set_new_handler(voidFuncPtr);
 };
 
-
-
 //不管元素类型，直接分配n大小的空间；确定n的大小是simple_alloc接口包装类的任务
 template<int inst>
 void* malloc_alloc<inst>::allocate(size_t n) {
 	void* ret = malloc(n);
 	if (!ret)
-		ret = oom_alloc(size_t);
+		ret = oom_alloc(n);
 	return ret;
 }
 
@@ -55,14 +51,14 @@ void malloc_alloc<inst>::deallocate(void *p, size_t) {
 
 //设置新的内存不足时的处理函数，返回旧的处理函数指针
 template<int inst>
-malloc_alloc<inst>::voidFuncPtr malloc_alloc<inst>::set_new_handler(voidFuncPtr new_handler) {
+typename malloc_alloc<inst>::voidFuncPtr malloc_alloc<inst>::set_new_handler(voidFuncPtr new_handler) {
 	voidFuncPtr old = oom_handler;
 	oom_handler = new_handler;
 	return old;
 }
 
 template<int inst>
-malloc_alloc<inst>::voidFuncPtr malloc_alloc<inst>::oom_handler = 0;
+typename malloc_alloc<inst>::voidFuncPtr malloc_alloc<inst>::oom_handler = 0;
 
 template<int inst>
 void* malloc_alloc<inst>::oom_alloc(size_t n) {
@@ -97,11 +93,11 @@ static const size_t __FREELISTS_NUMS = __MAX_BYTES / __ALIGN;
 template<bool threads, int inst>
 class pool_alloc {
 public:
-	void* allocate(size_t);
+	static void* allocate(size_t);
 	
-	void* reallocate(void*, size_t);
+	//void* reallocate(void*, size_t);
 
-	void deallocate(void*, size_t);
+	static void deallocate(void*, size_t);
 
 private:
 	static size_t ROUND_UP(size_t);
@@ -113,10 +109,13 @@ private:
 		char client_data[1];	//用户能看到的
 	};
 	static obj* volatile free_list[__FREELISTS_NUMS];
+	static char* start_pos;
+	static char* end_pos;
+	static size_t pool_size;
 
 private:
-	static obj* refill(size_t);
-	static void* chunk_alloc(size_t, int&);
+	static void* refill(size_t);
+	static char* chunk_alloc(size_t, int&);
 };
 
 template<bool threads, int inst>
@@ -151,16 +150,16 @@ void pool_alloc<threads, inst>::deallocate(void *p, size_t n) {
 		malloc_alloc<inst>().deallocate(p, n);
 		return;
 	}
-	obj* volatile* ptr_free_list;
-	ptr_free_list = free_list + FREELIST_INDEX(n);
-	p->free_list_link = *ptr_free_list;
-	*ptr_free_list = p;
+	obj* q = (obj*)p;
+	obj* volatile* ptr_free_list = free_list + FREELIST_INDEX(n);
+	q->free_list_link = *ptr_free_list;
+	*ptr_free_list = q;
 }
 
 template<bool threads, int inst>
-pool_alloc<threads, inst>::obj* pool_alloc<threads, inst>::refill(size_t n) {
+void* pool_alloc<threads, inst>::refill(size_t n) {
 	int nobj = 20;
-	void* chunk = chunk_alloc(n, nobj);
+	char* chunk = chunk_alloc(n, nobj);
 	
 	if (nobj == 1)
 		return (chunk);
@@ -173,15 +172,87 @@ pool_alloc<threads, inst>::obj* pool_alloc<threads, inst>::refill(size_t n) {
 		curr->free_list_link = (obj*)(curr + n);
 		curr = curr->free_list_link;
 	}
-
+	curr = 0;
 	return (chunk);
 }
 
 template<bool threads, int inst>
-void* pool_alloc<threads, inst>::reallocate(void *p, size_t n) {
+size_t pool_alloc<threads, inst>::pool_size = 0;
+
+template<bool threads, int inst>
+char* pool_alloc<threads, inst>::start_pos = 0;
+
+template<bool threads, int inst>
+char* pool_alloc<threads, inst>::end_pos = 0;
+
+template<bool threads, int inst>
+typename pool_alloc<threads, inst>::obj * volatile pool_alloc<threads, inst>::free_list[__FREELISTS_NUMS] = { 
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0 
+};
+
+template<bool threads, int inst>
+char* pool_alloc<threads, inst>::chunk_alloc(size_t n, int& nobj) {
+	size_t pool_left = end_pos - start_pos;
+	char* ret;
+	if (pool_left >= n) {
+		ret = start_pos;
+		start_pos += n * nobj;
+		return ret;
+	}
+	else if (pool_left >= n) {
+		nobj = pool_left / n;
+		ret = start_pos;
+		start_pos += n * nobj;
+		return ret;
+	}
+	else {
+		size_t bytes_needed = 2 * n * nobj + ROUND_UP(pool_size >> 4);
+		if (pool_left > 0) {
+			obj* volatile* ptr_free_list = free_list + FREELIST_INDEX(pool_left);
+			((obj*)start_pos)->free_list_link = *ptr_free_list;
+			*ptr_free_list = (obj*)start_pos;
+		}
+		start_pos = (char*)malloc(bytes_needed);
+		if (!start_pos) {
+			obj* volatile* ptr_free_list, *p;
+			for (int i = 0; i < __MAX_BYTES; i += __ALIGN) {
+				ptr_free_list = free_list + FREELIST_INDEX(i);
+				p = *ptr_free_list;
+				if (p) {
+					*ptr_free_list = p->free_list_link;
+					start_pos = (char*)p;
+					end_pos = start_pos + i;
+					return chunk_alloc(n, nobj);
+				}
+			}
+			end_pos = 0;
+			start_pos = (char *)malloc_alloc<inst>::allocate(bytes_needed);
+		}
+		pool_size += bytes_needed;
+		end_pos = start_pos + bytes_needed;
+		return chunk_alloc(n, nobj);
+	}
 }
 
+typedef pool_alloc<0, 0> alloc;
 
+template<typename T, typename Alloc=alloc>
+class simple_alloc {
+public:
+	static T* allocate(size_t n) {
+		return n ? (T*)Alloc::allocate(n * sizeof(T)) : 0;
+	}
+	static void deallocate(T* p, size_t n = 1) {
+		Alloc::deallocate(p, n * sizeof(T));
+	}
+};
 
 }
 #endif // !__LMSTL_ALLOC_H__
