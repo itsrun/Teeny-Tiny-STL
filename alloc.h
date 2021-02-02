@@ -213,7 +213,7 @@ namespace lmstl {
 			if (!start_pos) {
 				obj** ptr_free_list;
 				obj* p;
-				for (int i = n; i < __MAX_BYTES; i += __ALIGN){
+				for (int i = n; i < __MAX_BYTES; i += __ALIGN){//注意此处是从n开始，这样才能把所有空余块整合到一起；否则陷入死循环
 					ptr_free_list = free_list + FREELIST_INDEX(i);
 					p = *ptr_free_list;
 					if (p) {
