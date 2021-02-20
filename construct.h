@@ -27,7 +27,7 @@ template <typename ForwardIterator>
 inline void __destroy(ForwardIterator beg, ForwardIterator end, std::true_type){}
 
 template <typename ForwardIterator>
-inline void destroy(ForwardIterator eg, ForwardIterator end) {
+inline void destroy(ForwardIterator beg, ForwardIterator end) {
 	typedef iterator_traits<ForwardIterator>::value_type value_type;
 	__destroy(beg, end, std::is_trivially_destructible<value_type>());
 }

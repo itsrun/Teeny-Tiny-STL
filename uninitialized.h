@@ -3,20 +3,16 @@
 
 #include "iterator.h"
 #include "construct.h"
+#include "algobase.h"
 #include <type_traits>
 #include <cstring>
+#include <algorithm>
 
 namespace lmstl {
 
 template <typename ForwardIterator, typename size, typename T>
-inline ForwardIterator uninitialized_fill_n(ForwardIterator beg, size n, const T& x) {
-	typedef iterator_traits<T>::value_type value_type;
-	return __uninitialized_fill_n(beg, n, x, std::is_pod<value_type>());
-}
-
-template <typename ForwardIterator, typename size, typename T>
 inline ForwardIterator __uninitialized_fill_n(ForwardIterator beg, size n, const T& x, std::true_type) {
-	return fill_n(beg, n, x);//未完成
+	return std::fill_n(beg, n, x);//未完成
 }
 
 template <typename ForwardIterator, typename size, typename T>
@@ -27,9 +23,14 @@ inline ForwardIterator __uninitialized_fill_n(ForwardIterator beg, size n, const
 	return p;
 }
 
+template <typename ForwardIterator, typename size, typename T>
+inline ForwardIterator uninitialized_fill_n(ForwardIterator beg, size n, const T& x) {
+	return __uninitialized_fill_n(beg, n, x, std::is_pod<T>());
+}
+
 template <typename InputIterator, typename ForwardIterator>
 inline ForwardIterator __uninitialized_copy_n(InputIterator beg, InputIterator end, ForwardIterator dest, std::true_type) {
-	return copy(beg, end, dest);//未完成
+	return lmstl::copy(beg, end, dest);
 }
 
 template <typename InputIterator, typename ForwardIterator>
@@ -43,7 +44,7 @@ inline ForwardIterator __uninitialized_copy_n(InputIterator beg, InputIterator e
 template <typename InputIterator, typename ForwardIterator>
 inline ForwardIterator uninitialized_copy(InputIterator beg, InputIterator end, ForwardIterator dest) {
 	typedef iterator_traits<InputIterator>::value_type value_type;
-	return __uninitialized_copy_nf(beg, end, dest, std::is_pod<value_type>());
+	return __uninitialized_copy_n(beg, end, dest, std::is_pod<value_type>());
 }
 
 template<>
@@ -67,7 +68,7 @@ inline void __uninitialized_fill(ForwardIterator beg, ForwardIterator end, const
 
 template <typename ForwardIterator, typename T>
 inline void __uninitialized_fill(ForwardIterator beg, ForwardIterator end, const T& val, std::true_type) {
-	fill(beg, end, x);//未完成
+	std::fill(beg, end, val);//未完成
 }
 
 template <typename ForwardIterator, typename T>

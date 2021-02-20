@@ -1,22 +1,9 @@
 #ifndef __LMSTL_ALLOC_H__
 #define __LMSTL_ALLOC_H__
 
-/*
-描述：
-当分配空间小于512字节时，使用内存池pool_alloc
-当分配空间超过512字节时，使用malloc_alloc
-
-调用deallocate后内存只是回收到free list中，并没有真正释放，即pool_size只会增大不会减小...但侯捷的书中并没有讲deallocate后内存池的内存应该如何释放，
-因此这里也只实现了书上讲到的部分（pool_alloc的reallocate同理）
-
-性能：
-在我的电脑上pool_alloc比标准库allocator快一倍
-*/
-
+#include "exceptdef.h"
 #include <new>
 #include <iostream>
-
-#define __THROW_BAD_ALLOC__ std::cerr<<"Out of Memory"<<std::endl; exit(1)
 
 namespace lmstl {
 
@@ -158,7 +145,7 @@ namespace lmstl {
 	}
 
 	void pool_alloc::deallocate(void* p, size_t n) {
-		if (n > __MAX_BYTES) {
+		if (n > __MAX_BYTES || !n) {
 			malloc_alloc::deallocate(p, n);
 			return;
 		}
@@ -170,7 +157,7 @@ namespace lmstl {
 	}
 
 	void* pool_alloc::refill(size_t n) {
-		int nobj = 10;
+		int nobj = 15;
 		char* chunk = chunk_alloc(n, nobj);
 
 		if (nobj == 1)
@@ -180,7 +167,8 @@ namespace lmstl {
 		obj** ptr_free_list = free_list + FREELIST_INDEX(n);
 
 		*ptr_free_list = curr = (obj*)(chunk + n);
-		for (int i = 1; i < nobj - 1; i++) {
+		int len = nobj - 1;
+		for (int i = 1; i < len; i++) {
 			curr->next_free_list = (obj*)((char*)curr + n);
 			curr = curr->next_free_list;
 		}
@@ -203,7 +191,7 @@ namespace lmstl {
 			return ret;
 		}
 		else {
-			size_t bytes_needed = 2 * n * nobj + ROUND_UP(pool_size >> 4);
+			size_t bytes_needed = (n << 1) * nobj + ROUND_UP(pool_size >> 4);
 			if (pool_left > 0) {
 				obj** ptr_free_list = free_list + FREELIST_INDEX(pool_left);
 				((obj*)start_pos)->next_free_list = *ptr_free_list;
@@ -237,10 +225,10 @@ namespace lmstl {
 	template<typename T, typename Alloc = alloc>
 	class simple_alloc {
 	public:
-		static T* allocate(size_t n) {
+		static T* allocate(const size_t n) {
 			return n ? (T*)Alloc::allocate(n * sizeof(T)) : 0;
 		}
-		static void deallocate(T* p, size_t n) {
+		static void deallocate(T* p, const size_t n) {
 			Alloc::deallocate(p, n * sizeof(T));
 		}
 	};
