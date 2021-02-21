@@ -35,7 +35,6 @@ void vector_test() {
 	API_TEST_EACH1(mv, sv, swap, mv4, sv4);
 	mv.clear();
 	sv.clear();
-
 	vector<std::string> msv2(3, "A");
 	std::vector<std::string> ssv2(3, "A");
 	vector<std::string> msv(msv2);
