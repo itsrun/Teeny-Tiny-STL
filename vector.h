@@ -204,7 +204,7 @@ public:
 				lmstl::copy(beg, end, pos);
 			}
 			else {
-				auto p = beg;
+				InputIterator p = beg;
 				lmstl::advance(p, after_nums);
 				lmstl::uninitialized_copy(pos, finish, pos + len);
 				lmstl::copy(beg, p, pos);
@@ -213,8 +213,8 @@ public:
 			finish += len;
 		}
 		else {
-			size_type old_size = size();
-			size_type new_size = old_size + lmstl::max(old_size, len);
+			size_type old_size = end_of_storage - start;
+			size_type new_size = old_size + max(old_size, len);
 			iterator new_start = data_allocator::allocate(new_size);
 			iterator new_finish = new_start;
 			try {
@@ -246,7 +246,7 @@ public:
 				lmstl::copy(beg, end, pos);
 			}
 			else {
-				auto p = beg;
+				InputIterator p = beg;
 				lmstl::advance(p, after_nums);
 				lmstl::uninitialized_copy(pos, finish, pos + len);
 				lmstl::copy(beg, p, pos);
@@ -255,8 +255,8 @@ public:
 			finish += len;
 		}
 		else {
-			size_type old_size = size();
-			size_type new_size = old_size + lmstl::max(old_size, len);
+			size_type old_size = end_of_storage - start;
+			size_type new_size = old_size + max(old_size, len);
 			iterator new_start = data_allocator::allocate(new_size);
 			iterator new_finish = new_start;
 			try {
@@ -285,8 +285,8 @@ inline typename vector<T, Alloc>::iterator vector<T, Alloc>::realloc_insert(iter
 		*pos = val_copy;
 		return pos;
 	}
-	const size_type old_size = size();
-	const size_type new_size = old_size ? (old_size << 1) : 5;
+	const size_type old_size = end_of_storage - start;
+	const size_type new_size = old_size ? (old_size << 1) : 10;
 	iterator ret;
 	iterator new_start = data_allocator::allocate(new_size);
 	iterator new_finish = new_start;
@@ -332,8 +332,8 @@ typename vector<T, Alloc>::iterator vector<T, Alloc>::insert(const iterator posi
 		finish += n;
 		return pos;
 	}
-	const size_type old_size = size();
-	const size_type new_size = old_size + lmstl::max(old_size, n);
+	const size_type old_size = end_of_storage - start;
+	const size_type new_size = old_size + max(old_size, n);
 	iterator ret;
 	iterator new_start = data_allocator::allocate(new_size);
 	iterator new_finish = new_start;

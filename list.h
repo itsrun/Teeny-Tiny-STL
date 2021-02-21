@@ -292,6 +292,12 @@ public:
 		base_ptr p = node->prev;
 		__erase(p);
 	}
+	~list() {
+		if (node) {
+			clear();
+			data_allocator::deallocate(node, 1);
+		}
+	}
 	void clear() {
 		base_ptr p = node->next;
 		base_ptr tmp;

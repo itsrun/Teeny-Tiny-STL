@@ -464,8 +464,10 @@ public:
 
 	iterator begin() { return leftmost(); }
 	const_iterator begin() const { return leftmost(); }
+	const_iterator cbegin() const { return leftmost(); }
 	iterator end() { return header; }
 	const_iterator end() const { return header; }
+	const_iterator cend() const { return header; }
 
 	size_type size() const { return node_count; }
 	bool empty() const { return !node_count; }
@@ -600,7 +602,7 @@ public:
 		node_ptr curr = root();
 		while (curr) {
 			prev = curr;
-			curr = (node_ptr)(key_compare(KeyOfValue()(val), key(curr)) ? curr->left : curr->right);
+			curr = (node_ptr&)(key_compare(KeyOfValue()(val), key(curr)) ? curr->left : curr->right);
 		}
 		return __insert(prev, val);
 	}
@@ -618,7 +620,7 @@ public:
 		while (curr) {
 			prev = curr;
 			comp = key_compare(KeyOfValue()(val), key(curr));
-			curr = (node_ptr)(comp ? curr->left : curr->right);
+			curr = (node_ptr&)(comp ? curr->left : curr->right);
 		}
 		iterator tmp = iterator(prev);
 		if (comp) {
@@ -639,7 +641,7 @@ public:
 
 private:
 	iterator __insert(base_ptr pos_, const value_type& val) {
-		node_ptr pos = (node_ptr)pos_;
+		node_ptr pos = (node_ptr&)pos_;
 		node_ptr tar = create_node(val);
 		if (pos == header) {
 			pos->left = tar;

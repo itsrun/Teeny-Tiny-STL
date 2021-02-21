@@ -3,9 +3,9 @@
 
 #include "alloc.h"
 #include "utility.h"
+#include "iterator.h"
 #include "functional.h"
-
-using std::less;
+#include "rb_tree.h"
 
 namespace lmstl {
 
@@ -27,8 +27,11 @@ public:
 	typedef typename rep_type::const_pointer const_pointer;
 	typedef typename rep_type::reference reference;
 	typedef typename rep_type::const_reference const_reference;
+
 	typedef typename rep_type::iterator iterator;
 	typedef typename rep_type::const_iterator const_iterator;
+	typedef reverse_iterator<const_iterator> const_reverse_iterator;
+	typedef reverse_iterator<iterator> reverse_iterator;
 
 	typedef typename rep_type::size_type size_type;
 	typedef typename rep_type::difference_type difference_type;
@@ -61,10 +64,18 @@ public:
 
 	key_compare key_comp() const { return t.key_comp(); }
 
-	iterator begin() { return t.begin(); }
-	const_iterator begin() const { return t.begin(); }
-	iterator end() { return t.end(); }
-	const_iterator end() const { return t.end(); }
+	iterator begin() noexcept { return t.begin(); }
+	const_iterator begin() const noexcept { return t.begin(); }
+	const_iterator cbegin() const noexcept { return t.begin(); }
+	reverse_iterator rbegin() noexcept { return reverse_iterator(t.end()); }
+	const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(t.cend()); }
+
+	iterator end() noexcept { return t.end(); }
+	const_iterator end() const noexcept { return t.end(); }
+	const_iterator cend() const noexcept { return t.end(); }
+	reverse_iterator rend() noexcept { return reverse_iterator(t.begin()); }
+	const_reverse_iterator rend() const noexcept { return const_reverse_iterator(t.cbegin()); }
+
 	bool empty() const { return t.empty(); }
 	size_type size() const { return t.size(); }
 
@@ -92,7 +103,11 @@ public:
 	void erase(iterator beg, iterator end) {
 		t.erase(beg, end);
 	}
-	
+
+	~map() {
+		t.clear();
+	}
+
 	void clear() {
 		t.clear();
 	}
