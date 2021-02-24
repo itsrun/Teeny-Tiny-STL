@@ -235,7 +235,6 @@ public:
 
 	template <typename InputIterator, typename = typename enable_if<is_input_iterator_v<InputIterator>>::type>
 	void insert(const const_iterator position, InputIterator beg, InputIterator end) {
-		//__THROW_OUT_OF_RANGE_ERROR(!(beg <= end && position >= start && position <= finish), "Range Error");
 		iterator pos = const_cast<iterator>(position);
 		const size_type after_nums = finish - pos;
 		const size_type len = (size_type)lmstl::distance(beg, end);

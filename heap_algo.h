@@ -33,6 +33,22 @@ namespace lmstl {
 		}
 		*(beg + i) = val;
 	}
+	
+	template <typename RandomAccessIterator, typename difference_type, typename value_type, typename Compare>
+	inline void __adjust_heap(RandomAccessIterator beg, difference_type top, 
+		difference_type len, value_type val, Compare comp) {
+		difference_type i = top, j = 2 * i + 1;
+		while (j < len) {
+			if (j < (len - 1) && comp(*(beg + j), *(beg + (j + 1))))
+				++j;
+			if (comp(*(beg + j), val))
+				break;
+			*(beg + i) = *(beg + j);
+			i = j;
+			j = 2 * j + 1;
+		}
+		*(beg + i) = val;
+	}
 
 	template <typename RandomAccessIterator>
 	inline void pop_heap(RandomAccessIterator beg, RandomAccessIterator end) {

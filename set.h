@@ -6,7 +6,6 @@
 #include "functional.h"
 
 namespace lmstl {
-	//后期要修改！
 
 template <typename Key, typename Compare = std::less<Key>, typename Alloc = alloc>
 class set {

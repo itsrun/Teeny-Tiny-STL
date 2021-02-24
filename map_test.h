@@ -44,6 +44,7 @@ void map_test(){
 	MAP_PERF_TEST1(map, insert, 100000, 500000, 1000000);
 	MAP_PERF_TEST2(map, operator[], 100000, 500000, 1000000);
 	PERF_TEST_END();
+	multimap<int, int> mmm;
 }
 
 }

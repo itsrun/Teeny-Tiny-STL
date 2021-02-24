@@ -260,6 +260,165 @@ inline wchar_t* copy_backward(const wchar_t* beg, const wchar_t* end, wchar_t* r
 	return result;
 }
 
+template <typename InputIter1, typename InputIter2, typename OutputIter>
+OutputIter set_union(InputIter1 beg1, InputIter1 end1,
+	InputIter2 beg2, InputIter2 end2, OutputIter result) {
+	while (beg1 != end1 && beg2 != end2) {
+		if (*beg1 < *beg2) {
+			*result = *beg1;
+			++beg1;
+		}
+		else if (*beg2 < *beg1) {
+			*result = *beg2;
+			++beg2;
+		}
+		else {
+			*result = *beg1;
+			++beg1; ++beg2;
+		}
+		++result;
+	}
+	return copy(beg1, end1, copy(beg2, end2, result));
+}
+
+template <typename InputIter1, typename InputIter2, typename OutputIter, typename Compare>
+OutputIter set_union(InputIter1 beg1, InputIter1 end1,
+	InputIter2 beg2, InputIter2 end2, 
+	OutputIter result, Compare comp) {
+	while (beg1 != end1 && beg2 != end2) {
+		if (comp(*beg1, *beg2)) {
+			*result = *beg1;
+			++beg1;
+		}
+		else if (comp(*beg2, *beg1)) {
+			*result = *beg2;
+			++beg2;
+		}
+		else {
+			*result = *beg1;
+			++beg1; ++beg2;
+		}
+		++result;
+	}
+	return copy(beg1, end1, copy(beg2, end2, result));
+}
+
+template <typename InputIter1, typename InputIter2, typename OutputIter>
+OutputIter set_intersection(InputIter1 beg1, InputIter1 end1, 
+	InputIter2 beg2, InputIter2 end2, OutputIter result) {
+	while (beg1 != end1 && beg2 != end2) {
+		if (*beg1 < *beg2)
+			++beg1;
+		else if (*beg2 < *beg1)
+			++beg2;
+		else {
+			*result = *beg1;
+			++beg1; ++beg2;
+			++result;
+		}
+	}
+	return result;
+}
+
+template <typename InputIter1, typename InputIter2, typename OutputIter, typename Compare>
+OutputIter set_intersection(InputIter1 beg1, InputIter1 end1, 
+	InputIter2 beg2, InputIter2 end2, OutputIter result, Compare comp) {
+	while (beg1 != end1 && beg2 != end2) {
+		if (comp(*beg1, *beg2))
+			++beg1;
+		else if (comp(*beg2, *beg1))
+			++beg2;
+		else {
+			*result = *beg1;
+			++beg1; ++beg2;
+			++result;
+		}
+	}
+	return result;
+}
+
+template <typename InputIter1, typename InputIter2, typename OutputIter>
+OutputIter set_difference(InputIter1 beg1, InputIter1 end1,
+	InputIter2 beg2, InputIter2 end2, OutputIter result) {
+	while (beg1 != end1 && beg2 != end2) {
+		if (*beg1 < *beg2) {
+			*result = *beg1;
+			++beg1;
+			++result;
+		}
+		else if (*beg2 < *beg1)
+			++beg2;
+		else {
+			++beg1;
+			++beg2;
+		}
+	}
+	return copy(beg1, end1, result);
+}
+
+template <typename InputIter1, typename InputIter2, typename OutputIter, typename Compare>
+OutputIter set_difference(InputIter1 beg1, InputIter1 end1,
+	InputIter2 beg2, InputIter2 end2, OutputIter result, Compare comp) {
+	while (beg1 != end1 && beg2 != end2) {
+		if (comp(*beg1, *beg2)) {
+			*result = *beg1;
+			++beg1;
+			++result;
+		}
+		else if (comp(*beg2, *beg1))
+			++beg2;
+		else {
+			++beg1;
+			++beg2;
+		}
+	}
+	return copy(beg1, end1, result);
+}
+
+template <typename InputIter1, typename InputIter2, typename OutputIter>
+OutputIter set_symmetric_difference(InputIter1 beg1, InputIter1 end1,
+	InputIter2 beg2, InputIter2 end2, OutputIter result) {
+	while (beg1 != end1 && beg2 != end2) {
+		if (*beg1 < *beg2) {
+			*result = *beg1;
+			++beg1;
+			++result;
+		}
+		else if (*beg2 < *beg1) {
+			*result = *beg2;
+			++beg2;
+			++result;
+		}
+		else {
+			++beg1;
+			++beg2;
+		}
+	}
+	return copy(beg1, end1, copy(beg2, end2, result));
+}
+
+template <typename InputIter1, typename InputIter2, typename OutputIter, typename Compare>
+OutputIter set_symmetric_difference(InputIter1 beg1, InputIter1 end1,
+	InputIter2 beg2, InputIter2 end2, OutputIter result, Compare comp) {
+	while (beg1 != end1 && beg2 != end2) {
+		if (comp(*beg1, *beg2)) {
+			*result = *beg1;
+			++beg1;
+			++result;
+		}
+		else if (comp(*beg2, *beg1)) {
+			*result = *beg2;
+			++beg2;
+			++result;
+		}
+		else {
+			++beg1;
+			++beg2;
+		}
+	}
+	return copy(beg1, end1, copy(beg2, end2, result));
+}
+
 }
 
 #endif // !__LMSTL_ALGOBASE_H__

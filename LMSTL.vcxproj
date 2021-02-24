@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -156,6 +156,7 @@
     <ClInclude Include="list.h" />
     <ClInclude Include="list_test.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="map_test.h" />
     <ClInclude Include="numeric.h" />
     <ClInclude Include="queue.h" />
     <ClInclude Include="rb_tree.h" />
