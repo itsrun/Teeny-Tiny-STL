@@ -10,7 +10,6 @@
 namespace lmstl {
 
 void list_test(){
-	/*
 	list<int> ml2(2, 7);
 	std::list<int> sl2(2, 7);
 	ml2.push_back(1);
@@ -42,7 +41,7 @@ void list_test(){
 	API_TEST_EACH1(ml, sl, swap, ml4, sl4);
 	API_TEST_EACH1(ml, sl, merge, ml4, sl4);
 	API_TEST_END();
-	*/
+	
 	PERF_TEST_START();
 	cout << "[-------------------- Container test : list --------------------]\n";
 	PERF_TEST00(list, push_back, 500000, 5000000, 10000000);

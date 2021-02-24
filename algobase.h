@@ -3,7 +3,7 @@
 
 #include "iterator.h"
 #include "utility.h"
-#include <type_traits>
+#include "type_traits.h"
 #include <string.h>
 
 namespace lmstl {
@@ -175,7 +175,7 @@ inline OutputIter __copy_t(RandomAccessIter beg, RandomAccessIter end, OutputIte
 template <typename InputIter, typename OutputIter>
 inline OutputIter __copy(InputIter beg, InputIter end, OutputIter result) {
 	typedef typename iterator_traits<InputIter>::iterator_category iterator_category;
-	return __copy_t(beg, end, result, iterator_category());
+	return lmstl::__copy_t(beg, end, result, iterator_category());
 }
 
 template <typename T, typename U>
@@ -188,7 +188,7 @@ inline typename enable_if<std::is_same<typename std::remove_const<T>::type, U>::
 
 template <typename InputIter, typename OutputIter>
 inline OutputIter copy(InputIter beg, InputIter end, OutputIter result) {
-	return __copy(beg, end, result);
+	return lmstl::__copy(beg, end, result);
 }
 
 inline char* copy(const char* beg, const char* end, char* result) {
@@ -222,7 +222,7 @@ inline BidirectIter2 __copy_backward_t(BidirectIter1 beg, BidirectIter1 end, Bid
 template <typename BidirectIter1, typename BidirectIter2>
 inline BidirectIter2 __copy_backward(BidirectIter1 beg, BidirectIter1 end, BidirectIter2 result) {
 	typedef typename iterator_traits<BidirectIter1>::iterator_category iterator_category;
-	return __copy_backward_t(beg, end, result, iterator_category());
+	return lmstl::__copy_backward_t(beg, end, result, iterator_category());
 }
 
 template <typename T, typename U>
@@ -239,7 +239,7 @@ inline typename enable_if<std::is_same<typename std::remove_const<T>::type, U>::
 
 template <typename BidirectIter1, typename BidirectIter2>
 inline BidirectIter2 copy_backward(BidirectIter1 beg, BidirectIter1 end, BidirectIter2 result) {
-	return __copy_backward(beg, end, result);
+	return lmstl::__copy_backward(beg, end, result);
 }
 
 inline char* copy_backward(const char* beg, const char* end, char* result) {
@@ -278,7 +278,7 @@ OutputIter set_union(InputIter1 beg1, InputIter1 end1,
 		}
 		++result;
 	}
-	return copy(beg1, end1, copy(beg2, end2, result));
+	return lmstl::copy(beg1, end1, lmstl::copy(beg2, end2, result));
 }
 
 template <typename InputIter1, typename InputIter2, typename OutputIter, typename Compare>
@@ -300,7 +300,7 @@ OutputIter set_union(InputIter1 beg1, InputIter1 end1,
 		}
 		++result;
 	}
-	return copy(beg1, end1, copy(beg2, end2, result));
+	return lmstl::copy(beg1, end1, lmstl::copy(beg2, end2, result));
 }
 
 template <typename InputIter1, typename InputIter2, typename OutputIter>
@@ -353,7 +353,7 @@ OutputIter set_difference(InputIter1 beg1, InputIter1 end1,
 			++beg2;
 		}
 	}
-	return copy(beg1, end1, result);
+	return lmstl::copy(beg1, end1, result);
 }
 
 template <typename InputIter1, typename InputIter2, typename OutputIter, typename Compare>
@@ -372,7 +372,7 @@ OutputIter set_difference(InputIter1 beg1, InputIter1 end1,
 			++beg2;
 		}
 	}
-	return copy(beg1, end1, result);
+	return lmstl::copy(beg1, end1, result);
 }
 
 template <typename InputIter1, typename InputIter2, typename OutputIter>
@@ -394,7 +394,7 @@ OutputIter set_symmetric_difference(InputIter1 beg1, InputIter1 end1,
 			++beg2;
 		}
 	}
-	return copy(beg1, end1, copy(beg2, end2, result));
+	return lmstl::copy(beg1, end1, lmstl::copy(beg2, end2, result));
 }
 
 template <typename InputIter1, typename InputIter2, typename OutputIter, typename Compare>
@@ -416,7 +416,7 @@ OutputIter set_symmetric_difference(InputIter1 beg1, InputIter1 end1,
 			++beg2;
 		}
 	}
-	return copy(beg1, end1, copy(beg2, end2, result));
+	return lmstl::copy(beg1, end1, lmstl::copy(beg2, end2, result));
 }
 
 }

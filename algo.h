@@ -61,15 +61,7 @@ InputIter find_if(InputIter beg, InputIter end, Predicate pred) {
 		++beg;
 	return beg;
 }
-/*
-template <typename ForwardIter1, typename ForwardIter2, typename = typename enable_if<
-	is_forward_iterator_v<ForwardIter1> && is_forward_iterator_v<ForwardIter2>>::type>
-inline ForwardIter1 find_end(ForwardIter1 beg1, ForwardIter1 end1, ForwardIter2 beg2, ForwardIter2 end2) {
-	if (beg2 == end2)
-		return end1;
-	ForwardIter1 result = end1;
-}
-*/
+
 template <typename InputIter, typename ForwardIter>
 InputIter find_first_of(InputIter beg1, InputIter end1, ForwardIter beg2, ForwardIter end2) {
 	for (; beg1 != end1; ++beg1)
@@ -137,21 +129,32 @@ bool includes(InputIter1 beg1, InputIter1 end1, InputIter2 beg2, InputIter2 end2
 	}
 	return beg2 == end2;
 }
-/*
+
 template <typename BidirectIter, typename Predicate>
 BidirectIter partition(BidirectIter beg, BidirectIter end, Predicate pred) {
-	while (beg != end) {
-		while (pred(*beg))
-			++beg;
+	while (1) {
+		while (1) {
+			if (beg == end)
+				return beg;
+			if (pred(*beg))
+				++beg;
+			else
+				break;
+		}
 		--end;
-		while (!pred(*end))
-			--end;
+		while (1) {
+			if (beg == end)
+				return beg;
+			if (!pred(*end))
+				--end;
+			else
+				break;
+		}
 		iter_swap(beg, end);
 		++beg;
 	}
-	return beg;
 }
-*/
+
 template <typename ForwardIter, typename T>
 ForwardIter remove(ForwardIter beg, ForwardIter end, const T& val) {
 	ForwardIter result;
@@ -183,11 +186,11 @@ inline void partial_sort(RandomAccessIter beg, RandomAccessIter mid, RandomAcces
 	make_heap(beg, mid);
 	for (RandomAccessIter p = mid; p != end; ++p) {
 		if (comp(*p, *beg)) {
-			iter_swap(p, beg);
-			lmstl::__adjust_heap(beg, 0, mid - beg, *beg);
+			lmstl::iter_swap(p, beg);
+			lmstl::__adjust_heap(beg, 0, mid - beg, *beg, comp);
 		}
 	}
-	heap_sort(beg, mid);
+	heap_sort(beg, mid, comp);
 }
 
 template <typename RandomAccessIter, typename T>
@@ -195,6 +198,18 @@ void __unguarded_insert(RandomAccessIter end, const T& val) {
 	RandomAccessIter next = end;
 	--next;
 	while (val < *next) {
+		*end = *next;
+		end = next;
+		--next;
+	}
+	*end = val;
+}
+
+template <typename RandomAccessIter, typename T, typename Compare>
+void __unguarded_insert(RandomAccessIter end, const T& val, Compare comp) {
+	RandomAccessIter next = end;
+	--next;
+	while (comp(val, *next)) {
 		*end = *next;
 		end = next;
 		--next;
@@ -215,6 +230,22 @@ void __insert_sort(RandomAccessIter beg, RandomAccessIter end) {
 		}
 		else
 			__unguarded_insert(i, val);
+	}
+}
+
+template <typename RandomAccessIter, typename Compare>
+void __insert_sort(RandomAccessIter beg, RandomAccessIter end, Compare comp) {
+	typedef iterator_traits<RandomAccessIter>::value_type value_type;
+	if (beg == end) return;
+	value_type val;
+	for (RandomAccessIter i = beg + 1; i != end; ++i) {
+		val = *i;
+		if (comp(val, *beg)) {
+			lmstl::copy_backward(beg, i, i + 1);
+			*beg = val;
+		}
+		else
+			__unguarded_insert(i, val, comp);
 	}
 }
 
@@ -251,6 +282,22 @@ RandomAccessIter __partition(RandomAccessIter beg, RandomAccessIter end) {
 	}
 }
 
+template <typename RandomAccessIter, typename Compare>
+RandomAccessIter __partition(RandomAccessIter beg, RandomAccessIter end, Compare comp) {
+	typename iterator_traits<RandomAccessIter>::value_type pivot = __median(*beg, *(beg + (end - beg) / 2), *(end - 1));
+	while (1) {
+		while (comp(*beg, pivot))
+			++beg;
+		--end;
+		while (comp(pivot, *end))
+			--end;
+		if (!(beg < end))
+			return beg;
+		lmstl::iter_swap(beg, end);
+		++beg;
+	}
+}
+
 template <typename Size>
 inline Size __lg(Size n) {
 	Size k;
@@ -276,11 +323,35 @@ void __introsort_loop(RandomAccessIter beg, RandomAccessIter end, Size depth_lim
 	}
 }
 
+template <typename RandomAccessIter, typename Size, typename Compare>
+void __introsort_loop(RandomAccessIter beg, RandomAccessIter end, Size depth_limit, Compare comp) {
+	typedef typename iterator_traits<RandomAccessIter>::value_type value_type;
+	RandomAccessIter mid;
+	while ((end - beg) > __lmstl_threshold) {
+		if (!depth_limit) {
+			lmstl::make_heap(beg, end, comp);
+			lmstl::heap_sort(beg, end, comp);
+			return;
+		}
+		mid = __partition(beg, end, comp);
+		--depth_limit;
+		__introsort_loop(mid, end, depth_limit, comp);
+		end = mid;
+	}
+}
+
 template <typename RandomAccessIter>
 void __unguarded_insert_sort(RandomAccessIter beg, RandomAccessIter end) {
 	typedef typename iterator_traits<RandomAccessIter>::value_type T;
 	for (; beg != end; ++beg)
 		__unguarded_insert(beg, T(*beg));
+}
+
+template <typename RandomAccessIter, typename Compare>
+void __unguarded_insert_sort(RandomAccessIter beg, RandomAccessIter end, Compare comp) {
+	typedef typename iterator_traits<RandomAccessIter>::value_type T;
+	for (; beg != end; ++beg)
+		__unguarded_insert(beg, T(*beg), comp);
 }
 
 template <typename RandomAccessIter>
@@ -293,11 +364,28 @@ void __final_insert_sort(RandomAccessIter beg, RandomAccessIter end) {
 		__insert_sort(beg, end);
 }
 
+template <typename RandomAccessIter, typename Compare>
+void __final_insert_sort(RandomAccessIter beg, RandomAccessIter end, Compare comp) {
+	if (end - beg > __lmstl_threshold) {
+		__insert_sort(beg, beg + __lmstl_threshold, comp);
+		__unguarded_insert_sort(beg + __lmstl_threshold, end, comp);
+	}
+	else
+		__insert_sort(beg, end, comp);
+}
+
 template <typename RandomAccessIter>
 void sort(RandomAccessIter beg, RandomAccessIter end) {
 	size_t n = end - beg;
 	__introsort_loop(beg, end, __lg(n)*2);
 	__final_insert_sort(beg, end);
+}
+
+template <typename RandomAccessIter, typename Compare>
+void sort(RandomAccessIter beg, RandomAccessIter end, Compare comp) {
+	size_t n = end - beg;
+	__introsort_loop(beg, end, __lg(n)*2, comp);
+	__final_insert_sort(beg, end, comp);
 }
 
 }

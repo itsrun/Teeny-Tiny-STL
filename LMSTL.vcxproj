@@ -145,7 +145,6 @@
     <ClInclude Include="alloc.h" />
     <ClInclude Include="construct.h" />
     <ClInclude Include="deque.h" />
-    <ClInclude Include="deque_test.h" />
     <ClInclude Include="exceptdef.h" />
     <ClInclude Include="forward_list.h" />
     <ClInclude Include="functional.h" />

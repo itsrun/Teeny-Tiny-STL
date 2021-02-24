@@ -6,8 +6,7 @@
 #include "hash_fun.h"
 #include "functional.h"
 #include "hashtable.h"
-
-using std::equal_to;
+#include "iterator.h"
 
 namespace lmstl {
 
@@ -30,7 +29,9 @@ public:
 	typedef typename ht::const_reference const_reference;
 
 	typedef typename ht::const_iterator iterator;
-	typedef typename ht::const_iterator iterator;
+	typedef typename ht::const_iterator const_iterator;
+	typedef reverse_iterator<iterator> reverse_iterator;
+	typedef reverse_iterator<const_iterator> const_reverse_iterator;
 
 	unordered_set() :
 		rep_type(100, hasher(), key_equal()) {}
@@ -66,8 +67,18 @@ public:
 	bool empty() const { return rep_type.empty(); }
 	void size(unordered_set& us) { rep_type.swap(us.rep_type); }
 
-	iterator begin() const { return rep_type.begin(); }
-	iterator end() const { return rep_type.end(); }
+	iterator begin() { return rep_type.begin(); }
+	const_iterator begin() const { return rep_type.cbegin(); }
+	const_iterator cbegin() const { return rep_type.cbegin(); }
+	reverse_iterator rbegin() { return reverse_iterator(rep_type.end()); }
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(rep_type.cend()); }
+
+	iterator end() { return rep_type.end(); }
+	const_iterator end() const { return rep_type.cend(); }
+	const_iterator cend() const { return rep_type.cend(); }
+	reverse_iterator rend() { return reverse_iterator(rep_type.begin()); }
+	const_reverse_iterator rend() const { return const_reverse_iterator(rep_type.cbegin()); }
+
 	friend bool operator==(const unordered_set&, const unordered_set&);
 
 	pair<iterator, bool > insert(const value_type& x) {
@@ -81,7 +92,8 @@ public:
 			rep_type->insert_unique(*beg);
 	}
 
-	iterator find(const key_type& key) const { return rep_type.find(key); }
+	iterator find(const key_type& key) { return rep_type.find(key); }
+	const_iterator find(const key_type& key) const { return rep_type.find(key); }
 
 	size_type count(const key_type& key) const { return rep_type.count(key); }
 

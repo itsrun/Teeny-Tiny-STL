@@ -59,11 +59,30 @@ namespace lmstl {
 		difference_type len = (end - beg) - 1;
 		__adjust_heap(beg, 0, len, temp);
 	}
+	
+	template <typename RandomAccessIterator, typename Compare>
+	inline void pop_heap(RandomAccessIterator beg, RandomAccessIterator end, Compare comp) {
+		typedef iterator_traits<RandomAccessIterator>::value_type value_type;
+		typedef iterator_traits<RandomAccessIterator>::difference_type difference_type;
+		value_type temp = *(end - 1);
+		*(end - 1) = *beg;
+		difference_type len = (end - beg) - 1;
+		__adjust_heap(beg, 0, len, temp, comp);
+	}
 
 	template <typename RandomAccessIterator>
 	inline void heap_sort(RandomAccessIterator beg, RandomAccessIterator end) {
 		while (end - beg > 1) {
 			lmstl::pop_heap(beg, end);
+			--end;
+		}
+	}
+	
+
+	template <typename RandomAccessIterator, typename Compare>
+	inline void heap_sort(RandomAccessIterator beg, RandomAccessIterator end, Compare comp) {
+		while (end - beg > 1) {
+			lmstl::pop_heap(beg, end, comp);
 			--end;
 		}
 	}
@@ -78,6 +97,20 @@ namespace lmstl {
 		difference_type parent = (len - 2) / 2;
 		while (parent >= 0) {
 			__adjust_heap(beg, parent, len, *(beg + parent));
+			--parent;
+		}
+	}
+	
+	template <typename RandomAccessIterator, typename Compare>
+	inline void make_heap(RandomAccessIterator beg, RandomAccessIterator end, Compare comp) {
+		typedef iterator_traits<RandomAccessIterator>::value_type value_type;
+		typedef iterator_traits<RandomAccessIterator>::difference_type difference_type;
+		difference_type len = end - beg;
+		if (len < 2)
+			return;
+		difference_type parent = (len - 2) / 2;
+		while (parent >= 0) {
+			__adjust_heap(beg, parent, len, *(beg + parent), comp);
 			--parent;
 		}
 	}

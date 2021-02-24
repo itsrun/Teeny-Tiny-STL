@@ -93,9 +93,6 @@
     <ClInclude Include="functional.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="deque_test.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="vector_test.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -103,6 +100,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="list_test.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="map_test.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

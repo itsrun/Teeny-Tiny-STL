@@ -186,7 +186,9 @@ protected:
 
 	void create_map_and_nodes(size_type num_elements) {
 		size_type num_nodes = num_elements / buffer_size() + 1;
-		map_size = lmstl::max(Init_Map_Size, num_nodes + 2);
+		map_size = lmstl::
+			
+			(Init_Map_Size, num_nodes + 2);
 		map = map_allocator::allocate(map_size);
 
 		map_pointer nstart = map + (map_size - num_nodes) / 2;

@@ -5,9 +5,7 @@
 #include "alloc.h"
 #include "hashtable.h"
 #include "utility.h"
-#include <functional>
-
-using std::equal_to;
+#include "functional.h"
 
 namespace lmstl {
 
@@ -30,8 +28,11 @@ public:
 	typedef typename ht::const_pointer const_pointer;
 	typedef typename ht::reference reference;
 	typedef typename ht::const_reference const_reference;
+
 	typedef typename ht::iterator iterator;
 	typedef typename ht::const_iterator const_iterator;
+	typedef reverse_iterator<const_iterator> const_reverse_iterator;
+	typedef reverse_iterator<iterator> reverse_iterator;
 	typedef typename ht::hasher hasher;
 	hasher hash_funct() const { return rep_type.hash_funct(); }
 	key_equal key_eq() const { return rep_type.key_eq; }
@@ -51,9 +52,16 @@ public:
 	friend bool operator==(const unordered_map&, const unordered_map&);
 
 	iterator begin() { return rep_type.begin(); }
-	const_iterator begin() const { return rep_type.begin(); }
+	const_iterator begin() const { return rep_type.cbegin(); }
+	const_iterator cbegin() const { return rep_type.cbegin(); }
+	reverse_iterator rbegin() { return reverse_iterator(rep_type.end()); }
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(rep_type.cend()); }
+
 	iterator end() { return rep_type.end(); }
-	iterator end() const { return rep_type.end(); }
+	iterator end() const { return rep_type.cend(); }
+	iterator cend() const { return rep_type.cend(); }
+	reverse_iterator rend() { return reverse_iterator(rep_type.begin()); }
+	const_reverse_iterator rend() const { const_reverse_iterator(return rep_type.cbegin()); }
 
 	pair<iterator, bool> insert(const value_type& obj) { return rep_type.insert_unique(obj); }
 	
@@ -137,9 +145,11 @@ public:
 	friend bool operator==(const unordered_multimap&, const unordered_multimap&);
 
 	iterator begin() { return rep_type.begin(); }
-	const_iterator begin() const { return rep_type.begin(); }
+	const_iterator begin() const { return rep_type.cbegin(); }
+	const_iterator cbegin() const { return rep_type.cbegin(); }
 	iterator end() { return rep_type.end(); }
-	iterator end() const { return rep_type.end(); }
+	iterator end() const { return rep_type.cend(); }
+	iterator cend() const { return rep_type.cend(); }
 
 	iterator insert(const value_type& obj) { return rep_type.insert_equal(obj); }
 

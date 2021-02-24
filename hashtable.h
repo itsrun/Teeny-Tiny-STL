@@ -250,16 +250,25 @@ public:
 		}
 		return const_iterator((base_ptr)0, this);
 	}
+	const_iterator cbegin() const noexcept {
+		size_type len = buckets.size();
+		for (size_type i = 0; i < len; ++i) {
+			if (buckets[i])
+				return const_iterator(buckets[i], this);
+		}
+		return const_iterator((base_ptr)0, this);
+	}
 	const_iterator end() const noexcept { return const_iterator((base_ptr)0, this); }
+	const_iterator cend() const noexcept { return const_iterator((base_ptr)0, this); }
 	size_type size() const noexcept { return num_elements; }
 	bool empty() const noexcept { return !num_elements; }
 
 	void swap(hashtable& x) {
 		buckets.swap(x.buckets);
-		std::swap(num_elements, x.num_elements);
-		std::swap(hash, x.hash);
-		std::swap(equals, x.equals);
-		std::swap(get_key, x.get_key);
+		lmstl::swap(num_elements, x.num_elements);
+		lmstl::swap(hash, x.hash);
+		lmstl::swap(equals, x.equals);
+		lmstl::swap(get_key, x.get_key);
 	}
 
 	iterator find(const key_type& k) {
