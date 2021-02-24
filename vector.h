@@ -312,7 +312,6 @@ inline typename vector<T, Alloc>::iterator vector<T, Alloc>::realloc_insert(iter
 
 template<typename T, typename Alloc>
 typename vector<T, Alloc>::iterator vector<T, Alloc>::insert(const iterator position, size_type n, const T& val) {
-	//__THROW_OUT_OF_RANGE_ERROR((position > finish || position < start), "Range Error");
 	iterator pos = const_cast<iterator>(position);
 	if (!n) return pos;
 	if (size_type(end_of_storage - finish) >= n) {

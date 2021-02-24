@@ -127,6 +127,10 @@ public:
 	typedef typename ht::iterator iterator;
 	typedef typename ht::const_iterator const_iterator;
 	typedef typename ht::hasher hasher;
+
+	typedef reverse_iterator<const_iterator> const_reverse_iterator;
+	typedef reverse_iterator<iterator> reverse_iterator;
+
 	hasher hash_funct() const { return rep_type.hash_funct(); }
 	key_equal key_eq() const { return rep_type.key_eq; }
 
@@ -147,9 +151,14 @@ public:
 	iterator begin() { return rep_type.begin(); }
 	const_iterator begin() const { return rep_type.cbegin(); }
 	const_iterator cbegin() const { return rep_type.cbegin(); }
+	reverse_iterator rbegin() { return reverse_iterator(rep_type.end()); }
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(rep_type.cend()); }
+
 	iterator end() { return rep_type.end(); }
-	iterator end() const { return rep_type.cend(); }
-	iterator cend() const { return rep_type.cend(); }
+	const_iterator end() const { return rep_type.cend(); }
+	const_iterator cend() const { return rep_type.cend(); }
+	reverse_iterator rend() { return reverse_iterator(rep_type.begin()); }
+	const_reverse_iterator rend() const { return const_reverse_iterator(rep_type.cbegin()); }
 
 	iterator insert(const value_type& obj) { return rep_type.insert_equal(obj); }
 

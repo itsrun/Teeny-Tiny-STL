@@ -251,7 +251,7 @@ inline rb_tree_node_base *rb_tree_erase_and_rebalance(rb_tree_node_base* x, rb_t
 			x->parent->right = y;
 
 		y->parent = x->parent;
-		std::swap(y->color, x->color);
+		lmstl::swap(y->color, x->color);
 		y = x;
 	}
 	else {
