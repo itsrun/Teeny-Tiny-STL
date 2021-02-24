@@ -1,30 +1,11 @@
 #  LMSTL
 
-基于侯捷《STL源码剖析》完成，正在完善中
+基于侯捷《STL源码剖析》完成，正在施工中
 based on *The Annotated STL Sources(using SGI STL)*,  not completed yet.
 
 ####  Current Progress:
 
 #####  STL Containers:
-
-- [ ] **list**
-
-Performance (push_back, Visual Studio 2019, Release）
-
-| Quantity   | LMSTL | std   |
-| ---------- | ----- | ----- |
-| 500,000    | 6ms   | 29ms  |
-| 5,000,000  | 61ms  | 350ms |
-| 10,000,000 | 114ms | 675ms |
-
-Performance ( insert at begin, Visual Studio 2019, Release）
-
-| Quantity   | LMSTL | std   |
-| ---------- | ----- | ----- |
-| 500,000    | 4ms   | 34ms  |
-| 5,000,000  | 45ms  | 348ms |
-| 10,000,000 | 101ms | 691ms |
-
 - [ ] **vector**
   Performance (push_back, Visual Studio 2019, Release）  
 
@@ -51,3 +32,16 @@ Performance ( insert at begin, Visual Studio 2019, Release）
   | 100,000   | 14ms  | 21ms  |
   | 500,000   | 64ms  | 119ms |
   | 1,000,000 | 142ms | 168ms |
+
+- [ ] **list**
+
+  Performance (push_back, Visual Studio 2019, Release）
+
+  | Quantity   | LMSTL | std   |
+  | ---------- | ----- | ----- |
+  | 500,000    | 6ms   | 29ms  |
+  | 5,000,000  | 61ms  | 350ms |
+  | 10,000,000 | 114ms | 675ms |
+
+  
+
