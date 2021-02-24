@@ -15,8 +15,7 @@ based on *The Annotated STL Sources(using SGI STL)*,  not completed yet.
   | 5,000,000  | 40ms  | 39ms  |
   | 50,000,000 | 356ms | 423ms |
 
-- [ ] **map**
-
+- [ ] **map**  
   Performance (insert, Visual Studio 2019, Release）
 
   | Quantity  | LMSTL | std   |
@@ -33,8 +32,7 @@ based on *The Annotated STL Sources(using SGI STL)*,  not completed yet.
   | 500,000   | 64ms  | 119ms |
   | 1,000,000 | 142ms | 168ms |
 
-- [ ] **list**
-
+- [ ] **list**  
   Performance (push_back, Visual Studio 2019, Release）
 
   | Quantity   | LMSTL | std   |
