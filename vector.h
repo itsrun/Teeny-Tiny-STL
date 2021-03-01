@@ -206,7 +206,7 @@ public:
 			else {
 				InputIterator p = beg;
 				lmstl::advance(p, after_nums);
-				lmstl::uninitialized_move(pos, finish, pos + len);
+				lmstl::uninitialized_move_n(pos, after_nums, pos + len);
 				lmstl::copy(beg, p, pos);
 				lmstl::uninitialized_copy(p, end, finish);
 			}
@@ -252,7 +252,7 @@ public:
 			else {
 				InputIterator p = beg;
 				lmstl::advance(p, after_nums);
-				lmstl::uninitialized_move(pos, finish, pos + len);
+				lmstl::uninitialized_move_n(pos, after_nums, pos + len);
 				lmstl::copy(beg, p, pos);
 				lmstl::uninitialized_copy(p, end, finish);
 			}
