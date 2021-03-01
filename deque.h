@@ -6,7 +6,7 @@
 #include "uninitialized.h"
 #include "exceptdef.h"
 #include "type_traits.h"
-#include <iostream>
+#include "utility.h"
 #include <stddef.h>
 
 namespace lmstl {
@@ -136,6 +136,7 @@ class deque {
 public:
 	typedef T			value_type;
 	typedef T*			pointer;
+	typedef const T*	const_pointer;
 	typedef T&			reference;
 	typedef const T&	const_reference;
 	typedef size_t		size_type;
@@ -186,12 +187,10 @@ protected:
 
 	void create_map_and_nodes(size_type num_elements) {
 		size_type num_nodes = num_elements / buffer_size() + 1;
-		map_size = lmstl::
-			
-			(Init_Map_Size, num_nodes + 2);
+		map_size = lmstl::max(Init_Map_Size, num_nodes + 2);
 		map = map_allocator::allocate(map_size);
 
-		map_pointer nstart = map + (map_size - num_nodes) / 2;
+		map_pointer nstart = map + ((map_size - num_nodes) >> 1);
 		map_pointer nfinish = nstart + num_nodes - 1;
 		map_pointer cur_node;
 
@@ -218,7 +217,7 @@ protected:
 
 		map_pointer new_nstart;
 		if (map_size > (new_num_nodes << 1)) {
-			new_nstart = map + (map_size - new_num_nodes) / 2 + (add_at_front ? nodes_to_add : 0);
+			new_nstart = map + ((map_size - new_num_nodes)>>1) + (add_at_front ? nodes_to_add : 0);
 			if (new_nstart < start.node)
 				lmstl::copy(start.node, finish.node + 1, new_nstart);
 			else
@@ -227,7 +226,7 @@ protected:
 		else {
 			size_type new_map_size = map_size + lmstl::max(map_size, nodes_to_add) + 2;
 			map_pointer new_map = map_allocator::allocate(new_map_size);
-			new_nstart = new_map + (new_map_size - new_num_nodes) / 2 + (add_at_front ? nodes_to_add : 0);
+			new_nstart = new_map + ((new_map_size - new_num_nodes)>>1) + (add_at_front ? nodes_to_add : 0);
 			lmstl::copy(start.node, finish.node + 1, new_nstart);
 			map_allocator::deallocate(map, map_size);
 			map = new_map;
@@ -282,7 +281,7 @@ protected:
 	iterator insert_aux(iterator pos, const value_type& val) {
 		size_type index = pos - start;
 		value_type val_copy = val;
-		if (index < (size()/2)) {
+		if (index < (size()<<1)) {
 			push_front(front());
 			iterator front1 = start;
 			++front1;

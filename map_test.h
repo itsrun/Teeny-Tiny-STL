@@ -10,8 +10,9 @@ namespace lmstl {
 
 void map_test(){
 	map<int, int> mm;
+	pair<int, int> tp(pair<int, int>(1, 2));
 	std::map<int, int> sm;
-	mm.insert(pair<int, int>(1, 2));
+	mm.insert(tp);
 	sm.insert(std::pair<int, int>(1, 2));
 	vector<pair<int, int>> mv;
 	vector<std::pair<int, int>> sv;

@@ -49,16 +49,24 @@ public:
 	}
 
 	template <typename InputIterator>
-	explicit map(InputIterator beg, InputIterator end, const Compare& comp) :
+	map(InputIterator beg, InputIterator end, const Compare& comp) :
 		t(comp) {
 		t.insert_unique(beg, end);
 	}
 
 	map(const map<Key, T, Compare, Alloc>& x):
 		t(x.t) {}
+	
+	map(map<Key, T, Compare, Alloc>&& x):
+		t(lmstl::move(x.t)) {}
 
 	map<Key, T, Compare, Alloc>& operator=(const map<Key, T, Compare, Alloc>& x) {
 		t = x.t;
+		return *this;
+	}
+	
+	map<Key, T, Compare, Alloc>& operator=(map<Key, T, Compare, Alloc>&& x) {
+		t = lmstl::move(x.t);
 		return *this;
 	}
 

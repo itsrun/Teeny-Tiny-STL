@@ -149,7 +149,6 @@
     <ClInclude Include="forward_list.h" />
     <ClInclude Include="functional.h" />
     <ClInclude Include="hashtable.h" />
-    <ClInclude Include="hash_fun.h" />
     <ClInclude Include="heap_algo.h" />
     <ClInclude Include="iterator.h" />
     <ClInclude Include="list.h" />

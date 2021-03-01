@@ -365,10 +365,11 @@ protected:
 	node_ptr get_node() { return node_allocator::allocate(1); }
 	void put_node(node_ptr p) { return node_allocator::deallocate(p, 1); }
 
-	node_ptr create_node(const value_type& val) {
+	template <typename T>
+	node_ptr create_node(T&& val) {
 		node_ptr ret = get_node();
 		try {
-			construct(ret, val);
+			construct(ret, lmstl::forward<T>(val));
 		}
 		catch (...) {
 			node_allocator::deallocate(ret, 1);
@@ -376,7 +377,7 @@ protected:
 		}
 		return ret;
 	}
-
+	
 	node_ptr clone_node(node_ptr x) {
 		node_ptr ret = create_node(x->value);
 		ret->left = ret->right = 0;
@@ -446,17 +447,28 @@ public:
 		node_count(0), key_compare(comp) {
 		init();
 	}
+	
+	rb_tree(rb_tree&& x):
+		header(lmstl::move(x.header)), node_count(lmstl::move(x.node_count)) {}
 
 	~rb_tree() {
 		erase_since(root());
 		destroy_node(header);
 	}
 
+	rb_tree(const rb_tree& x) :
+		node_count(x.node_count) {
+		erase_since(root());
+		node_ptr root = _copy(x.root(), header);
+		header->parent = root;
+		header->left = rb_tree_node_base::minimum(root);
+		header->right = rb_tree_node_base::maximum(root);
+	}
+
 	rb_tree& operator=(const rb_tree& x) {
 		erase_since(root());
 		node_ptr root = _copy(x.root(), header);
 		node_count = x.node_count;
-		key_compare = x.key_compare;
 		header->parent = root;
 		header->left = rb_tree_node_base::minimum(root);
 		header->right = rb_tree_node_base::maximum(root);

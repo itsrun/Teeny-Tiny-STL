@@ -46,16 +46,17 @@ inline void fill(ForwardIter beg, ForwardIter end, const T& value) {
 }
 
 template <typename ForwardIter, typename Size, typename T>
-inline void fill_n(ForwardIter beg, Size n, const T& value) {
+inline ForwardIter fill_n(ForwardIter beg, Size n, const T& value) {
 	for (; n > 0; --n, ++beg)
 		*beg = value;
+	return beg;
 }
 
 template <typename ForwardIter1, typename ForwardIter2>
 inline void iter_swap(ForwardIter1 a, ForwardIter2 b) {
-	typename iterator_traits<ForwardIter1>::value_type tmp = *a;
-	*a = *b;
-	*b = tmp;
+	typename iterator_traits<ForwardIter1>::value_type tmp(lmstl::move(*a));
+	*a = lmstl::move(*b);
+	*b = lmstl::move(tmp);
 }
 
 template <typename T>
@@ -150,13 +151,6 @@ pair<InputIter1, InputIter2> mismatch(InputIter1 beg1,
 	return pair<InputIter1, InputIter2>(beg1, beg2);
 }
 
-template <typename T>
-inline void swap(T& a, T& b) {
-	T tmp = a;
-	a = b;
-	b = tmp;
-}
-
 template <typename InputIter, typename OutputIter>
 inline OutputIter __copy_t(InputIter beg, InputIter end, OutputIter result, input_iterator_tag) {
 	for (; beg != end; ++beg, ++result)
@@ -189,6 +183,42 @@ inline typename enable_if<std::is_same<typename std::remove_const<T>::type, U>::
 template <typename InputIter, typename OutputIter>
 inline OutputIter copy(InputIter beg, InputIter end, OutputIter result) {
 	return lmstl::__copy(beg, end, result);
+}
+
+template <typename T, typename U, typename = typename enable_if<
+	std::is_trivially_move_assignable_v<T> &&
+	std::is_same<std::remove_const_t<T>, U>::value>::type>
+inline U* move_aux(T* beg, T* end, U* result) {
+	const size_t n = static_cast<size_t>(end - beg);
+	if (n)
+		std::memmove(result, beg, n * sizeof(U));
+	return result + n;
+}
+
+template <typename RandomAccessIter, typename OutputIter>
+inline OutputIter move_n(RandomAccessIter beg, RandomAccessIter end, OutputIter result, random_access_iterator_tag) {
+	size_t n = static_cast<size_t>(end - beg);
+	for (; n; --n, ++beg, ++result)
+		*result = lmstl::move(*beg);
+	return result;
+}
+
+template <typename InputIter, typename OutputIter>
+inline OutputIter move_n(InputIter beg, InputIter end, OutputIter result, input_iterator_tag) {
+	for (; beg != end; ++beg, ++result)
+		*result = lmstl::move(*beg);
+	return result;
+}
+
+template <typename InputIter, typename OutputIter>
+inline OutputIter move_aux(InputIter beg, InputIter end, OutputIter result) {
+	typedef typename iterator_traits<InputIter>::iterator_category iterator_category;
+	return move_n(beg, end, result, iterator_category());
+}
+
+template <typename InputIter, typename OutputIter>
+inline OutputIter move(InputIter beg, InputIter end, OutputIter result) {
+	return move_aux(beg, end, result);
 }
 
 inline char* copy(const char* beg, const char* end, char* result) {
@@ -239,7 +269,7 @@ inline typename enable_if<std::is_same<typename std::remove_const<T>::type, U>::
 
 template <typename BidirectIter1, typename BidirectIter2>
 inline BidirectIter2 copy_backward(BidirectIter1 beg, BidirectIter1 end, BidirectIter2 result) {
-	return lmstl::__copy_backward(beg, end, result);
+	return __copy_backward(beg, end, result);
 }
 
 inline char* copy_backward(const char* beg, const char* end, char* result) {
@@ -252,6 +282,62 @@ inline char* copy_backward(const char* beg, const char* end, char* result) {
 }
 
 inline wchar_t* copy_backward(const wchar_t* beg, const wchar_t* end, wchar_t* result) {
+	size_t n = static_cast<size_t>(end - beg);
+	if (n) {
+		result -= n;
+		memmove(result, beg, n);
+	}
+	return result;
+}
+
+template <typename T, typename U>
+inline typename enable_if<std::is_same<typename std::remove_const<T>::type, U>::value &&
+	std::is_trivially_move_assignable_v<U>, U*>::type __move_backward(T* beg, T* end, U* result) {
+	const auto n = static_cast<size_t>(end - beg);
+	if (n)
+	{
+		result -= n;
+		std::memmove(result, beg, n * sizeof(U));
+	}
+	return result;
+}
+
+template <typename BidirectIter1, typename BidirectIter2, typename = typename enable_if<
+	is_bidirectional_iterator_v<BidirectIter1>>::type>
+inline BidirectIter2 __move_backward_n(BidirectIter1 beg, BidirectIter1 end, BidirectIter2 result, bidirectional_iterator_tag) {
+	while (beg != end)
+		*--result = lmstl::move(*--end);
+	return result;
+}
+
+template <typename RandomAccessIter1, typename RandomAccessIter2>
+inline RandomAccessIter2 __move_backward_n(RandomAccessIter1 beg, RandomAccessIter1 end, RandomAccessIter2 result, random_access_iterator_tag) {
+	size_t n = static_cast<size_t>(end - beg);
+	for (; n; --n)
+		*--result = lmstl::move(*--end);
+	return result;
+}
+
+template <typename BidirectIter1, typename BidirectIter2>
+inline BidirectIter2 __move_backward(BidirectIter1 beg, BidirectIter1 end, BidirectIter2 result) {
+	return __move_backward_n(beg, end, result, typename iterator_traits<BidirectIter1>::iterator_category());
+}
+
+template <typename BidirectIter1, typename BidirectIter2>
+inline BidirectIter2 move_backward(BidirectIter1 beg, BidirectIter1 end, BidirectIter2 result) {
+	return __move_backward(beg, end, result);
+}
+
+inline char* move_backward(const char* beg, const char* end, char* result) {
+	size_t n = static_cast<size_t>(end - beg);
+	if (n) {
+		result -= n;
+		memmove(result, beg, n);
+	}
+	return result;
+}
+
+inline wchar_t* move_backward(const wchar_t* beg, const wchar_t* end, wchar_t* result) {
 	size_t n = static_cast<size_t>(end - beg);
 	if (n) {
 		result -= n;

@@ -279,8 +279,8 @@ template<typename T, typename Alloc>
 inline typename vector<T, Alloc>::iterator vector<T, Alloc>::realloc_insert(iterator pos, const T& val) {
 	if(finish!=end_of_storage){
 		++finish;
-		lmstl::copy_backward(pos, finish - 1, finish);
 		T val_copy = val;
+		lmstl::move_backward(pos, finish - 1, finish);
 		*pos = val_copy;
 		return pos;
 	}
@@ -290,10 +290,10 @@ inline typename vector<T, Alloc>::iterator vector<T, Alloc>::realloc_insert(iter
 	iterator new_start = data_allocator::allocate(new_size);
 	iterator new_finish = new_start;
 	try {
-		ret = new_finish = lmstl::uninitialized_copy(start, pos, new_start);
+		ret = new_finish = lmstl::uninitialized_move(start, pos, new_start);
 		construct(new_finish, val);
 		++new_finish;
-		new_finish = lmstl::uninitialized_copy(pos, finish, new_finish);
+		new_finish = lmstl::uninitialized_move(pos, finish, new_finish);
 	}
 	catch (...) {
 		destroy(new_start, new_finish);
@@ -318,7 +318,7 @@ typename vector<T, Alloc>::iterator vector<T, Alloc>::insert(const iterator posi
 		const size_type after_nums = finish - pos;
 		T val_copy = val;
 		if (after_nums > n) {
-			lmstl::uninitialized_copy(finish - n, finish, finish);
+			lmstl::uninitialized_move(finish - n, finish, finish);
 			lmstl::copy_backward(pos, finish - n, finish);
 			lmstl::fill_n(pos, n, val_copy);
 		}

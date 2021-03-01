@@ -6,13 +6,12 @@
 #include "algobase.h"
 #include <type_traits>
 #include <cstring>
-#include <algorithm>
 
 namespace lmstl {
 
 template <typename ForwardIterator, typename size, typename T>
 inline ForwardIterator __uninitialized_fill_n(ForwardIterator beg, size n, const T& x, std::true_type) {
-	return std::fill_n(beg, n, x);//未完成
+	return lmstl::fill_n(beg, n, x);
 }
 
 template <typename ForwardIterator, typename size, typename T>
@@ -59,6 +58,38 @@ inline wchar_t* uninitialized_copy(const wchar_t* beg, const wchar_t* end, wchar
 	return dest + (end - beg);
 }
 
+template <typename InputIter, typename ForwardIter>
+inline ForwardIter uninitialized_move_aux(InputIter beg, InputIter end, ForwardIter result, std::true_type) {
+	return lmstl::move(beg, end, result);
+}
+
+template <typename InputIter, typename ForwardIter>
+inline ForwardIter uninitialized_move_aux(InputIter beg, InputIter end, ForwardIter result, std::false_type) {
+	size_t n = static_cast<size_t>(lmstl::distance(beg, end));
+	for (; n; --n, ++beg, ++result)
+		construct(&*result, lmstl::move(*beg));
+	return result;
+}
+
+template <typename InputIter, typename ForwardIter>
+inline ForwardIter uninitialized_move(InputIter beg, InputIter end, ForwardIter dest) {
+	typedef std::is_trivially_move_assignable<typename iterator_traits<InputIter>::value_type> mt;
+	return uninitialized_move_aux(beg, end, dest, mt());
+}
+
+template<>
+inline char* uninitialized_move(const char* beg, const char* end, char* dest) {
+	std::memmove(dest, beg, end - beg);
+	return dest + (end - beg);
+}
+
+template<>
+inline wchar_t* uninitialized_move(const wchar_t* beg, const wchar_t* end, wchar_t* dest) {
+	std::memmove(dest, beg, sizeof(wchar_t) * (end - beg));
+	return dest + (end - beg);
+}
+
+
 template <typename ForwardIterator, typename T>
 inline void __uninitialized_fill(ForwardIterator beg, ForwardIterator end, const T& val, std::false_type) {
 	ForwardIterator p = beg;
@@ -68,7 +99,7 @@ inline void __uninitialized_fill(ForwardIterator beg, ForwardIterator end, const
 
 template <typename ForwardIterator, typename T>
 inline void __uninitialized_fill(ForwardIterator beg, ForwardIterator end, const T& val, std::true_type) {
-	std::fill(beg, end, val);//未完成
+	lmstl::fill(beg, end, val);
 }
 
 template <typename ForwardIterator, typename T>
