@@ -200,13 +200,13 @@ public:
 		if ((size_type)(end_of_storage - finish) >= len) {
 			if (after_nums > len) {
 				lmstl::uninitialized_copy(finish - len, finish, finish);
-				lmstl::copy_backward(pos, finish - len, finish);
+				lmstl::move_backward(pos, finish - len, finish);
 				lmstl::copy(beg, end, pos);
 			}
 			else {
 				InputIterator p = beg;
 				lmstl::advance(p, after_nums);
-				lmstl::uninitialized_copy(pos, finish, pos + len);
+				lmstl::uninitialized_move(pos, finish, pos + len);
 				lmstl::copy(beg, p, pos);
 				lmstl::uninitialized_copy(p, end, finish);
 			}
@@ -217,15 +217,20 @@ public:
 			size_type new_size = old_size + max(old_size, len);
 			iterator new_start = data_allocator::allocate(new_size);
 			iterator new_finish = new_start;
+			size_type diff = static_cast<size_type>(lmstl::distance(start, pos));
 			try {
-				new_finish = lmstl::uninitialized_copy(start, pos, new_start);
-				new_finish = lmstl::uninitialized_copy(beg, end, new_finish);
-				new_finish = lmstl::uninitialized_copy(pos, finish, new_finish);
+				new_finish = lmstl::uninitialized_copy(beg, end, new_start + diff);
+				lmstl::uninitialized_move_n(start, diff, new_start);
+				new_finish = lmstl::uninitialized_move_n(pos, after_nums, new_finish);
 			}
 			catch (...) {
 				destroy(new_start, new_finish);
 				data_allocator::deallocate(new_start, new_size);
 				__THROW_RUNTIME_ERROR(1, "Error when reallocating");
+			}
+			if (start) {
+				destroy(start, finish);
+				data_allocator::deallocate(start, old_size);
 			}
 			start = new_start;
 			finish = new_finish;
@@ -241,13 +246,13 @@ public:
 		if ((size_type)(end_of_storage - finish) >= len) {
 			if (after_nums > len) {
 				lmstl::uninitialized_copy(finish - len, finish, finish);
-				lmstl::copy_backward(pos, finish - len, finish);
+				lmstl::move_backward(pos, finish - len, finish);
 				lmstl::copy(beg, end, pos);
 			}
 			else {
 				InputIterator p = beg;
 				lmstl::advance(p, after_nums);
-				lmstl::uninitialized_copy(pos, finish, pos + len);
+				lmstl::uninitialized_move(pos, finish, pos + len);
 				lmstl::copy(beg, p, pos);
 				lmstl::uninitialized_copy(p, end, finish);
 			}
@@ -258,15 +263,20 @@ public:
 			size_type new_size = old_size + max(old_size, len);
 			iterator new_start = data_allocator::allocate(new_size);
 			iterator new_finish = new_start;
+			size_type diff = static_cast<size_type>(lmstl::distance(start, pos));
 			try {
-				new_finish = lmstl::uninitialized_copy(start, pos, new_start);
-				new_finish = lmstl::uninitialized_copy(beg, end, new_finish);
-				new_finish = lmstl::uninitialized_copy(pos, finish, new_finish);
+				new_finish = lmstl::uninitialized_copy(beg, end, new_start + diff);
+				lmstl::uninitialized_move_n(start, diff, new_start);
+				new_finish = lmstl::uninitialized_move_n(pos, after_nums, new_finish);
 			}
 			catch (...) {
 				destroy(new_start, new_finish);
 				data_allocator::deallocate(new_start, new_size);
 				__THROW_RUNTIME_ERROR(1, "Error when reallocating");
+			}
+			if (start) {
+				destroy(start, finish);
+				data_allocator::deallocate(start, old_size);
 			}
 			start = new_start;
 			finish = new_finish;
@@ -319,11 +329,11 @@ typename vector<T, Alloc>::iterator vector<T, Alloc>::insert(const iterator posi
 		T val_copy = val;
 		if (after_nums > n) {
 			lmstl::uninitialized_move(finish - n, finish, finish);
-			lmstl::copy_backward(pos, finish - n, finish);
+			lmstl::move_backward(pos, finish - n, finish);
 			lmstl::fill_n(pos, n, val_copy);
 		}
 		else {
-			lmstl::uninitialized_copy(pos, finish, pos + n);
+			lmstl::uninitialized_move(pos, finish, pos + n);
 			lmstl::fill_n(pos, after_nums, val_copy);
 			lmstl::uninitialized_fill_n(finish, n - after_nums, val_copy);
 		}
@@ -336,9 +346,9 @@ typename vector<T, Alloc>::iterator vector<T, Alloc>::insert(const iterator posi
 	iterator new_start = data_allocator::allocate(new_size);
 	iterator new_finish = new_start;
 	try {
-		ret = new_finish = lmstl::uninitialized_copy(start, pos, new_start);
+		ret = new_finish = lmstl::uninitialized_move(start, pos, new_start);
 		new_finish = lmstl::uninitialized_fill_n(new_finish, n, val);
-		new_finish = lmstl::uninitialized_copy(pos, finish, new_finish);
+		new_finish = lmstl::uninitialized_move(pos, finish, new_finish);
 	}
 	catch (...) {
 		destroy(new_start, new_finish);

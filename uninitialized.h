@@ -77,6 +77,24 @@ inline ForwardIter uninitialized_move(InputIter beg, InputIter end, ForwardIter 
 	return uninitialized_move_aux(beg, end, dest, mt());
 }
 
+template <typename InputIter, typename ForwardIter>
+inline ForwardIter uninitialized_move_n_aux(InputIter beg, size_t n, ForwardIter result, std::true_type) {
+	return lmstl::move(beg, beg + n, result);
+}
+
+template <typename InputIter, typename ForwardIter>
+inline ForwardIter uninitialized_move_n_aux(InputIter beg, size_t n, ForwardIter result, std::false_type) {
+	for (; n; --n, ++beg, ++result)
+		construct(&*result, lmstl::move(*beg));
+	return result;
+}
+
+template <typename InputIter, typename ForwardIter>
+inline ForwardIter uninitialized_move_n(InputIter beg, size_t n, ForwardIter dest) {
+	typedef std::is_trivially_move_assignable<typename iterator_traits<InputIter>::value_type> mt;
+	return uninitialized_move_n_aux(beg, n, dest, mt());
+}
+
 template<>
 inline char* uninitialized_move(const char* beg, const char* end, char* dest) {
 	std::memmove(dest, beg, end - beg);

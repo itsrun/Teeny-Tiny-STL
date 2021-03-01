@@ -42,7 +42,7 @@ void vector_test() {
 	API_TEST01(msv, ssv, push_back, "hi");
 	API_TEST13(msv, ssv, insert, begin, , 0, 2, "ins");
 	API_TEST12(msv, ssv, insert, begin, , 1, "ins");
-	API_TEST33(msv, ssv, insert, begin, rbegin, rend, , 2, , 0, , 0);
+	API_TEST33(msv, ssv, insert, begin, begin, end, , 2, , 0, , 0);
 	API_TEST22(msv, ssv, erase, begin, begin, , 1, , 3);
 	API_TEST_EACH3(msv, ssv, insert, msv.cbegin(), msv2.rbegin(), msv2.rend(), ssv.cbegin(), ssv2.rbegin(), ssv2.rend());
 	API_TEST11(msv, ssv, erase, begin, , 2);
