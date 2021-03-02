@@ -337,6 +337,7 @@ inline rb_tree_node_base *rb_tree_erase_and_rebalance(rb_tree_node_base* x, rb_t
 		if (z)
 			z->color = rb_black;
 	}
+
 	return y;
 }
 
