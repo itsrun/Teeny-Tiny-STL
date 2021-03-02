@@ -176,6 +176,7 @@ class binder1st : public unary_function<typename Operation::first_argument_type,
 protected:
 	Operation op;
 	typename Operation::first_argument_type value;
+
 public:
 	binder1st(const Operation& oper, const typename Operation::first_argument_type& x):
 		op(oper), value(x) {}
@@ -195,6 +196,7 @@ class binder2nd : public unary_function<typename Operation::second_argument_type
 protected:
 	Operation op;
 	typename Operation::second_argument_type value;
+
 public:
 	binder2nd(const Operation& oper, const typename Operation::second_argument_type& y):
 		op(oper), value(y) {}
@@ -213,6 +215,7 @@ template <typename Predicate>
 class unary_negate : public unary_function<typename Predicate::argument_type, bool> {
 protected:
 	Predicate pred;
+
 public:
 	unary_negate(const Predicate& upred):
 		pred(upred) {}
@@ -231,6 +234,7 @@ class binary_negate : public binary_function<
 	typename Predicate::first_argument_type, typename Predicate::second_argument_type, bool> {
 protected:
 	Predicate pred;
+
 public:
 	binary_negate(const Predicate& upred):
 		pred(upred) {}
@@ -244,6 +248,7 @@ class unary_compose : public unary_function<typename Operation2::argument_type, 
 protected:
 	Operation1 op1;
 	Operation2 op2;
+
 public:
 	unary_compose(const Operation1& x, const Operation2& y):
 		op1(x), op2(y) {}
@@ -263,6 +268,7 @@ protected:
 	Operation1 op1;
 	Operation2 op2;
 	Operation3 op3;
+
 public:
 	binary_compose(const Operation1&x, const Operation2&y, const Operation3&Z):
 		op1(x), op2(y), op3(z) {}
@@ -281,6 +287,7 @@ template <typename Arg, typename Result>
 class pointer_to_unary_function : public unary_function<Arg, Result> {
 protected:
 	Result(*ptr)(Arg);
+
 public:
 	pointer_to_unary_function(){}
 	explicit pointer_to_unary_function(Result (*x)(Arg)):
@@ -297,6 +304,7 @@ template <typename Arg1, typename Arg2, typename Result>
 class pointer_to_binary_function : public binary_function<Arg1, Arg2, Result> {
 protected:
 	Result(*ptr)(Arg1, Arg2);
+
 public:
 	pointer_to_binary_function(){}
 	explicit pointer_to_binary_function(Result (*x)(Arg1, Arg2)):
