@@ -1,16 +1,16 @@
 # LMSTL
 
-»ùÓÚºî½İ¡¶STLÔ´ÂëÆÊÎö¡·Íê³É£¬ÔÚÔ­Êé»ù´¡ÉÏ¸ÄĞ´Îª·Ç³£¼òÂªµÄ·ûºÏC++11±ê×¼µÄSTL¡£
+åŸºäºä¾¯æ·ã€ŠSTLæºç å‰–æã€‹å®Œæˆã€‚åœ¨åŸä¹¦åŸºç¡€ä¸Šæ”¹å†™ä¸ºéå¸¸ç®€é™‹çš„ç¬¦åˆC++11æ ‡å‡†çš„STLã€‚
 
 Based on *The Annotated STL Sources (using SGI STL)* by Hou Jie. I use some new features in C++11 to rewrite the origin codes in the book.
 
-ÕâÊÇÎÒº®¼ÙÀï×÷Îª¸öÈËC++ĞÂÊÖÈëÃÅµÄÏîÄ¿£¬ÈçÓĞ´íÎó»¹ÇëÖ¸½Ì£¡
+è¿™æ˜¯æˆ‘å¯’å‡é‡Œä½œä¸ºä¸ªäººC++æ–°æ‰‹å…¥é—¨çš„é¡¹ç›®ï¼Œå¦‚æœ‰é”™è¯¯è¿˜è¯·æŒ‡æ•™ï¼
 
 Please let me know if there's any mistake !
 
 ### About
 
-LMSTL_test.cpp²âÊÔ¸÷ÈİÆ÷µÄÕıÈ·ĞÔºÍĞÔÄÜ£¨Ä¿Ç°ÒÑÍê³Évector\map\list£©
+LMSTL_test.cppæµ‹è¯•å„å®¹å™¨çš„æ­£ç¡®æ€§å’Œæ€§èƒ½ï¼ˆç›®å‰å·²å®Œæˆvector\map\listï¼‰
 
 LMSTL_test.cpp checks the containers' correctness and performance ( Current Progress :  vector\map\list )
 
