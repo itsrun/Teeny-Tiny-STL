@@ -143,16 +143,37 @@ public:
 
 private:
 	iterator realloc_insert(iterator pos, const T& val);
+	template <typename... Args>
+	iterator realloc_emplace(iterator pos, Args&&... args);
 
 public:
 
 	void push_back(const T& val) {
 		if (finish != end_of_storage) {
-			construct(finish, val);
+			construct(&*finish, val);
 			++finish;
 		}
 		else 
 			realloc_insert(finish, val);
+	}
+
+	void push_back(T&& val) {
+		if (finish != end_of_storage) {
+			construct(&*finish, lmstl::move(val));
+			++finish;
+		}
+		else
+			realloc_emplace(finish, lmstl::move(val));
+	}
+
+	template <typename... Args>
+	void emplace_back(Args&&... args) {
+		if (finish != end_of_storage) {
+			construct(&*finish, lmstl::forward<Args>(args)...);
+			++finish;
+		}
+		else
+			realloc_emplace(finish, lmstl::forward<Args>(args)...);
 	}
 
 	void pop_back() {
@@ -348,6 +369,35 @@ typename vector<T, Alloc>::iterator vector<T, Alloc>::insert(const iterator posi
 	try {
 		ret = new_finish = lmstl::uninitialized_move(start, pos, new_start);
 		new_finish = lmstl::uninitialized_fill_n(new_finish, n, val);
+		new_finish = lmstl::uninitialized_move(pos, finish, new_finish);
+	}
+	catch (...) {
+		destroy(new_start, new_finish);
+		data_allocator::deallocate(new_start, new_size);
+		__THROW_RUNTIME_ERROR(1, "Error when reallocating");
+	}
+	if (start) {
+		destroy(start, finish);
+		data_allocator::deallocate(start, old_size);
+	}
+	start = new_start;
+	finish = new_finish;
+	end_of_storage = start + new_size;
+	return ret;
+}
+
+template <typename T, typename Alloc>
+template <typename... Args>
+inline typename vector<T, Alloc>::iterator vector<T, Alloc>::realloc_emplace(iterator pos, Args&&... args) {
+	const size_type old_size = end_of_storage - start;
+	const size_type new_size = old_size ? (old_size << 1) : 10;
+	iterator ret;
+	iterator new_start = data_allocator::allocate(new_size);
+	iterator new_finish = new_start;
+	try {
+		ret = new_finish = lmstl::uninitialized_move(start, pos, new_start);
+		construct(&*new_finish, lmstl::forward<Args>(args)...);
+		++new_finish;
 		new_finish = lmstl::uninitialized_move(pos, finish, new_finish);
 	}
 	catch (...) {

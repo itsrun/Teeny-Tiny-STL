@@ -365,15 +365,15 @@ protected:
 	node_ptr get_node() { return node_allocator::allocate(1); }
 	void put_node(node_ptr p) { return node_allocator::deallocate(p, 1); }
 
-	template <typename T>
-	node_ptr create_node(T&& val) {
-		node_ptr ret = get_node();
+	template <typename ...Args>
+	node_ptr create_node(Args&&... args) {
+		node_ptr ret = node_allocator::allocate(1);
 		try {
-			construct(ret, lmstl::forward<T>(val));
+			construct(&ret->value, lmstl::forward<Args>(args)...);
 		}
 		catch (...) {
 			node_allocator::deallocate(ret, 1);
-			__THROW_RUNTIME_ERROR(1, "Error when constructing");
+			__THROW_RUNTIME_ERROR(1, "Error when creating node");
 		}
 		return ret;
 	}
@@ -518,7 +518,7 @@ public:
 
 	iterator find(const Key& k) {
 		base_ptr prev = header;
-		base_ptr curr = root();
+		base_ptr curr = (node_ptr&)header->parent;
 
 		while (curr) {
 			if (!key_compare(key(curr), k)) {
@@ -534,7 +534,7 @@ public:
 
 	const_iterator find(const Key& k) const {
 		base_ptr prev = header;
-		base_ptr curr = root();
+		base_ptr curr = (node_ptr&)header->parent;
 
 		while (curr) {
 			if (!key_compare(key(curr), k)) {
@@ -550,7 +550,7 @@ public:
 
 	iterator lower_bound(const Key& k) {
 		base_ptr prev = header;
-		base_ptr curr = root();
+		base_ptr curr = (node_ptr&)header->parent;
 		
 		while (curr) {
 			if (!key_compare(key(curr), k)) {
@@ -565,7 +565,7 @@ public:
 
 	const_iterator lower_bound(const Key& k) const {
 		base_ptr prev = header;
-		base_ptr curr = root();
+		base_ptr curr = (node_ptr&)header->parent;
 
 		while (curr) {
 			if (!key_compare(key(curr), k)) {
@@ -580,7 +580,7 @@ public:
 
 	iterator upper_bound(const Key& k) {
 		base_ptr prev = header;
-		base_ptr curr = root();
+		base_ptr curr = (node_ptr&)header->parent;
 
 		while (curr) {
 			if (key_compare(k, key(curr))) {
@@ -595,7 +595,7 @@ public:
 
 	const_iterator upper_bound(const Key& k) const {
 		base_ptr prev = header;
-		base_ptr curr = root();
+		base_ptr curr = (node_ptr&)header->parent;
 
 		while (curr) {
 			if (key_compare(k, key(curr))) {
@@ -618,14 +618,26 @@ public:
 
 	iterator insert_equal(const value_type& val) {
 		node_ptr prev = header;
-		node_ptr curr = root();
+		node_ptr curr = (node_ptr&)header->parent;
 		while (curr) {
 			prev = curr;
 			curr = (node_ptr&)(key_compare(KeyOfValue()(val), key(curr)) ? curr->left : curr->right);
 		}
 		return __insert(prev, val);
 	}
-
+	
+	template <typename... Args>
+	iterator emplace_equal(Args&&... args) {
+		node_ptr prev = header;
+		node_ptr curr = (node_ptr&)header->parent;
+		node_ptr add = create_node(lmstl::forward<Args>(args)...);
+		while (curr) {
+			prev = curr;
+			curr = (node_ptr&)(key_compare(KeyOfValue()(add->value), key(curr)) ? curr->left : curr->right);
+		}
+		return __insert_node_at(prev, add);
+	}
+	
 	template <typename InputIterator>
 	void insert_equal(InputIterator beg, InputIterator end) {
 		for (; beg != end; ++beg)
@@ -634,7 +646,7 @@ public:
 
 	pair<iterator, bool> insert_unique(const value_type& val) {
 		node_ptr prev = header;
-		node_ptr curr = root();
+		node_ptr curr = (node_ptr&)header->parent;
 		bool comp = true;
 		while (curr) {
 			prev = curr;
@@ -649,6 +661,28 @@ public:
 		}
 		if (key_compare(key(tmp.node), KeyOfValue()(val)))
 			return pair<iterator, bool>(__insert(prev, val), true);
+		return pair<iterator, bool>(tmp, false);
+	}
+	
+	template <typename... Args>
+	pair<iterator, bool> emplace_unique(Args&&... args) {
+		node_ptr prev = header;
+		node_ptr curr = (node_ptr&)header->parent;
+		node_ptr add = create_node(lmstl::forward<Args>(args)...);
+		bool comp = true;
+		while (curr) {
+			prev = curr;
+			comp = key_compare(KeyOfValue()(add->value), key(curr));
+			curr = (node_ptr&)(comp ? curr->left : curr->right);
+		}
+		iterator tmp = iterator(prev);
+		if (comp) {
+			if(prev == leftmost())
+				return pair<iterator, bool>(__insert_node_at(prev, add), true);
+			--tmp;
+		}
+		if (key_compare(key(tmp.node), KeyOfValue()(add->value)))
+			return pair<iterator, bool>(__insert_node_at(prev, add), true);
 		return pair<iterator, bool>(tmp, false);
 	}
 
@@ -684,6 +718,31 @@ private:
 		++node_count;
 		return iterator(tar);
 	}
+	
+	iterator __insert_node_at(node_ptr pos, node_ptr tar) {
+		if (pos == header) {
+			pos->left = tar;
+			root() = tar;
+			rightmost() = tar;
+		}
+		else if (key_compare(KeyOfValue()(tar->value), key(pos))) {
+			pos->left = tar;
+			if(pos == leftmost())
+				leftmost() = tar;
+		}
+		else {
+			pos->right = tar;
+			if (pos == rightmost())
+				rightmost() = tar;
+		}
+		tar->parent = pos;
+		tar->left = tar->right = 0;
+
+		rb_tree_rebalance(tar, header->parent);
+		++node_count;
+		return iterator(tar);
+	}
+
 };
 
 }

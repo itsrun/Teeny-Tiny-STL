@@ -20,6 +20,7 @@ void vector_test() {
 	API_TEST_START();
 	cout << "[------------------- Container test : vector -------------------]\n";
 	API_TEST01(mv, sv, push_back, 6);
+	API_TEST01(mv, sv, emplace_back, 6);
 	API_TEST13(mv, sv, insert, begin, , 0, 3, 5);
 	API_TEST12(mv, sv, insert, begin, , 1, 7);
 	API_TEST33(mv, sv, insert, begin, rbegin, rend, , 2, , 0, , 0);
@@ -40,6 +41,7 @@ void vector_test() {
 	vector<std::string> msv(msv2);
 	std::vector<std::string> ssv(ssv2);
 	API_TEST01(msv, ssv, push_back, "hi");
+	API_TEST01(msv, ssv, emplace_back, "hi");
 	API_TEST13(msv, ssv, insert, begin, , 0, 2, "ins");
 	API_TEST12(msv, ssv, insert, begin, , 1, "ins");
 	API_TEST33(msv, ssv, insert, begin, rbegin, rend, , 2, , 0, , 0);
@@ -53,6 +55,7 @@ void vector_test() {
 	PERF_TEST_START();
 	cout << "[------------------- Container test : vector -------------------]\n";
 	PERF_TEST00(vector, push_back, 500000, 5000000, 50000000);
+	PERF_TEST00(vector, emplace_back, 500000, 5000000, 50000000);
 	PERF_TEST11(vector, insert, begin, 20000, 50000, 100000);
 	PERF_TEST_END();
 }

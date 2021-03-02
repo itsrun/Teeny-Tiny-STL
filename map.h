@@ -90,6 +90,11 @@ public:
 	pair<iterator, bool> insert(const value_type& x) {
 		return t.insert_unique(x);
 	}
+	
+	template <typename...Args>
+	pair<iterator, bool> emplace(Args&&... args) {
+		return t.emplace_unique(lmstl::forward<Args>(args)...);
+	}
 
 	T& operator[](const key_type& k) {
 		return (*((t.insert_unique(value_type(k, T())).first))).second;

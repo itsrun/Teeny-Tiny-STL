@@ -26,8 +26,10 @@ void map_test(){
 	pair<int, int> mp1(9, 99);
 	std::pair<int, int> sp1(9, 99);
 	API_TEST_EACH1(mm, sm, insert, mp1, sp1);
+	API_TEST_EACH1(mm, sm, emplace, mp1, sp1);
 	API_TEST_EACH1(mm, sm, erase, mm.begin(), sm.begin());
 	API_TEST_EACH1(mm, sm, insert, mp1, sp1);
+	API_TEST_EACH1(mm, sm, emplace, mp1, sp1);
 	for (int i = 0; i < 5; ++i) {
 		mv.push_back(pair<int, int>(i+3, i + 1));
 		sv.push_back(std::pair<int, int>(i+3, i + 1));
@@ -43,6 +45,7 @@ void map_test(){
 	PERF_TEST_START();
 	cout << "[-------------------- Container test : map ---------------------]\n";
 	MAP_PERF_TEST1(map, insert, 100000, 500000, 1000000);
+	MAP_PERF_TEST1(map, emplace, 100000, 500000, 1000000);
 	MAP_PERF_TEST2(map, operator[], 100000, 500000, 1000000);
 	PERF_TEST_END();
 	multimap<int, int> mmm;
