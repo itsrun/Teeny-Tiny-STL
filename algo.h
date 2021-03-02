@@ -100,6 +100,20 @@ OutputIter generate(OutputIter beg, Size n, Generator gen) {
 	return beg;
 }
 
+template <typename InputIter, typename OutputIter, typename UnaryOp>
+OutputIter transform(InputIter beg, InputIter end, OutputIter result, UnaryOp op) {
+	for (; beg != end; ++beg, ++result)
+		*result = op(*beg);
+	return result;
+}
+
+template <typename InputIter1, typename InputIter2, typename OutputIter, typename BinaryOp>
+OutputIter transform(InputIter1 beg1, InputIter1 end1, InputIter2 beg2, OutputIter result, BinaryOp op) {
+	for (; beg1 != end1; ++beg1, ++beg2, ++result)
+		*result = op(*beg1, *beg2);
+	return result;
+}
+
 template <typename InputIter1, typename InputIter2>
 bool includes(InputIter1 beg1, InputIter1 end1, InputIter2 beg2, InputIter2 end2) {
 	while (beg1 != end1 && beg2 != end2) {
@@ -386,6 +400,280 @@ void sort(RandomAccessIter beg, RandomAccessIter end, Compare comp) {
 	size_t n = end - beg;
 	__introsort_loop(beg, end, __lg(n)*2, comp);
 	__final_insert_sort(beg, end, comp);
+}
+
+template <typename ForwardIter, typename T>
+inline ForwardIter __lower_bound(ForwardIter beg, ForwardIter end, const T& val, forward_iterator_tag) {
+	typedef typename iterator_traits<ForwardIter>::difference_type difference_type;
+	difference_type len = lmstl::distance(beg, end);
+	difference_type half;
+	ForwardIter mid;
+	while (len>0) {
+		half = len >> 1;
+		mid = beg;
+		advance(mid, half);
+		if (*mid < val) {
+			beg = mid;
+			len = len - half - 1;
+			++beg;
+		}
+		else
+			len = half;
+	}
+	return beg;
+}
+
+template <typename RandomAccessIter, typename T>
+inline RandomAccessIter __lower_bound(RandomAccessIter beg, RandomAccessIter end, const T& val, random_access_iterator_tag) {
+	typedef typename iterator_traits<RandomAccessIter>::difference_type difference_type;
+	difference_type len = end - beg;
+	difference_type half;
+	RandomAccessIter mid;
+	while (len>0) {
+		half = len >> 1;
+		mid = beg + half;
+		if (*mid < val) {
+			beg = mid + 1;
+			len = len - half - 1;
+		}
+		else
+			len = half;
+	}
+	return beg;
+}
+
+template <typename ForwardIter, typename T>
+inline ForwardIter lower_bound(ForwardIter beg, ForwardIter end, const T& val) {
+	typedef typename iterator_traits<ForwardIter>::iterator_category iterator_category;
+	return __lower_bound(beg, end, iterator_category());
+}
+
+template <typename ForwardIter, typename T, typename Compare>
+inline ForwardIter __lower_bound(ForwardIter beg, ForwardIter end, const T& val, Compare comp, forward_iterator_tag) {
+	typedef typename iterator_traits<ForwardIter>::difference_type difference_type;
+	difference_type len = lmstl::distance(beg, end);
+	difference_type half;
+	ForwardIter mid;
+	while (len>0) {
+		half = len >> 1;
+		mid = beg;
+		advance(mid, half);
+		if (comp(*mid, val)) {
+			beg = mid;
+			len = len - half - 1;
+			++beg;
+		}
+		else
+			len = half;
+	}
+	return beg;
+}
+
+template <typename RandomAccessIter, typename T, typename Compare>
+inline RandomAccessIter __lower_bound(RandomAccessIter beg, RandomAccessIter end, const T& val, Compare comp, random_access_iterator_tag) {
+	typedef typename iterator_traits<RandomAccessIter>::difference_type difference_type;
+	difference_type len = end - beg;
+	difference_type half;
+	RandomAccessIter mid;
+	while (len>0) {
+		half = len >> 1;
+		mid = beg + half;
+		if (comp(*mid, val)) {
+			beg = mid + 1;
+			len = len - half - 1;
+		}
+		else
+			len = half;
+	}
+	return beg;
+}
+
+template <typename ForwardIter, typename T, typename Compare>
+inline ForwardIter lower_bound(ForwardIter beg, ForwardIter end, const T& val, Compare comp) {
+	typedef typename iterator_traits<ForwardIter>::iterator_category iterator_category;
+	return __lower_bound(beg, end, comp, iterator_category());
+}
+
+template <typename ForwardIter, typename T, typename Compare>
+inline ForwardIter __upper_bound(ForwardIter beg, ForwardIter end, const T& val, forward_iterator_tag) {
+	typedef typename iterator_traits<ForwardIter>::difference_type difference_type;
+	difference_type len = lmstl::distance(beg, end);
+	difference_type half;
+	ForwardIter mid;
+	while (len > 0) {
+		half = len >> 1;
+		mid = beg;
+		advance(mid, half);
+		if (!(val < *mid)) {
+			beg = mid;
+			len = len - half - 1;
+			++beg;
+		}
+		else
+			len = half;
+	}
+	return beg;
+}
+
+template <typename RandomAccessIter, typename T, typename Compare>
+inline RandomAccessIter __upper_bound(RandomAccessIter beg, RandomAccessIter end, const T& val, random_access_iterator_tag) {
+	typedef typename iterator_traits<RandomAccessIter>::difference_type difference_type;
+	difference_type len = end - beg;
+	difference_type half;
+	RandomAccessIter mid;
+	while (len > 0) {
+		half = len >> 1;
+		mid = beg + half;
+		if (!(val < *mid)) {
+			beg = mid + 1;
+			len = len - half - 1;
+		}
+		else
+			len = half;
+	}
+	return beg;
+}
+
+template <typename ForwardIter, typename T, typename Compare>
+inline ForwardIter upper_bound(ForwardIter beg, ForwardIter end, const T& val) {
+	typedef typename iterator_traits<ForwardIter>::iterator_category iterator_category;
+	return __upper_bound(beg, end, iterator_category());
+}
+
+template <typename ForwardIter, typename T, typename Compare>
+inline ForwardIter __upper_bound(ForwardIter beg, ForwardIter end, const T& val, Compare comp, forward_iterator_tag) {
+	typedef typename iterator_traits<ForwardIter>::difference_type difference_type;
+	difference_type len = lmstl::distance(beg, end);
+	difference_type half;
+	ForwardIter mid;
+	while (len > 0) {
+		half = len >> 1;
+		mid = beg;
+		advance(mid, half);
+		if (!comp(val, *mid)) {
+			beg = mid;
+			len = len - half - 1;
+			++beg;
+		}
+		else
+			len = half;
+	}
+	return beg;
+}
+
+template <typename RandomAccessIter, typename T, typename Compare>
+inline RandomAccessIter __upper_bound(RandomAccessIter beg, RandomAccessIter end, const T& val, Compare comp, random_access_iterator_tag) {
+	typedef typename iterator_traits<RandomAccessIter>::difference_type difference_type;
+	difference_type len = end - beg;
+	difference_type half;
+	RandomAccessIter mid;
+	while (len > 0) {
+		half = len >> 1;
+		mid = beg + half;
+		if (!comp(val, *mid)) {
+			beg = mid + 1;
+			len = len - half - 1;
+		}
+		else
+			len = half;
+	}
+	return beg;
+}
+
+template <typename ForwardIter, typename T, typename Compare>
+inline ForwardIter upper_bound(ForwardIter beg, ForwardIter end, const T& val, Compare comp) {
+	typedef typename iterator_traits<ForwardIter>::iterator_category iterator_category;
+	return __upper_bound(beg, end, comp, iterator_category());
+}
+
+template <typename BidirectIter>
+void __reverse(BidirectIter beg, BidirectIter end, bidirectional_iterator_tag) {
+	for (;;) {
+		if (beg == end || beg == --end)
+			return;
+		else {
+			iter_swap(beg, end);
+			++beg;
+		}
+	}
+}
+
+template <typename RandomAccessIter>
+void __reverse(RandomAccessIter beg, RandomAccessIter end, random_access_iterator_tag) {
+	for (;beg<end; ++beg)
+		iter_swap(beg, --end);
+}
+
+template <typename BidirectIter>
+void reverse(BidirectIter beg, BidirectIter end) {
+	typedef typename iterator_traits<BidirectIter>::iterator_category iterator_category;
+	__reverse(beg, end, iterator_category());
+}
+
+template <typename BidirectIter>
+bool next_permutation(BidirectIter beg, BidirectIter end) {
+	if (beg == end)
+		return false;
+	BidirectIter i = beg, ii;
+	++i;
+	if (i == end)
+		return false;
+	i = end;
+	--i;
+	for (;;) {
+		ii = i;
+		--i;
+		if (*i < *ii) {
+			BidirectIter j = end;
+			while (!(*i < *--j));
+			iter_swap(i, j);
+			reverse(ii, end);
+			return true;
+		}
+		if (i == beg) {
+			reverse(beg, end);
+			return false;
+		}
+	}
+}
+
+template <typename BidirectIter>
+bool prev_permutation(BidirectIter beg, BidirectIter end) {
+	if (beg == end)
+		return false;
+	BidirectIter i = beg, ii;
+	++i;
+	if (i == end)
+		return false;
+	i = end;
+	--i;
+	for (;;) {
+		ii = i;
+		--i;
+		if (*ii < *i) {
+			BidirectIter j = end;
+			while (!(*--j < *i));
+			iter_swap(i, j);
+			reverse(ii, end);
+			return true;
+		}
+		if (i == beg) {
+			reverse(beg, end);
+			return false;
+		}
+	}
+}
+
+template <typename RandomAccessIterator>
+inline void nth_element(RandomAccessIterator beg, RandomAccessIterator nth, RandomAccessIterator end) {
+	while (end - beg > 4) {
+		RandomAccessIterator piv = __partition(beg, end);
+		if (piv <= nth)
+			beg = piv;
+		else
+			end = piv;
+	}
+	__insert_sort(beg, end);
 }
 
 }

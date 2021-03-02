@@ -40,22 +40,22 @@ struct pair {
 		std::is_default_constructible_v<U1> && std::is_default_constructible_v<U2>>::type>
 	constexpr pair():
 		first(), second() {}
-	/*
+	
 	template <typename U1 = T1, typename U2 = T2, typename = typename enable_if<
 		std::is_constructible_v<T1, const U1&> && std::is_constructible_v<T2, const U2&>>::type>
 	constexpr pair(const U1& uf, const U2& us):
 		first(uf), second(us) {}
-	*/
+	
 	template <typename U1 = T1, typename U2 = T2, typename = typename enable_if<
 		std::is_constructible_v<T1, U1&&> && std::is_constructible_v<T2, U2&&>>::type>
 	constexpr pair(U1&& uf, U2&& us):
 		first(lmstl::forward<U1>(uf)), second(lmstl::forward<U2>(us)) {}
-
+	
 	template <typename U1 = T1, typename U2 = T2, typename = typename enable_if<
 		std::is_constructible_v<T1, const U1&> && std::is_constructible_v<T2, const U2&>>::type>
 	constexpr pair(const pair<U1, U2>& x):
 		first(x.first), second(x.second) {}
-
+	
 	template <typename U1 = T1, typename U2 = T2, typename = typename enable_if<
 		std::is_constructible_v<T1, U1&&> && std::is_constructible_v<T2, U2&&>>::type>
 	constexpr pair(pair<U1, U2>&& x):
@@ -84,6 +84,11 @@ struct pair {
 			lmstl::swap(first, x.first);
 			lmstl::swap(second, x.second);
 		}
+	}
+
+	void swap(pair&& x) {
+		first = lmstl::move(x.first);
+		second = lmstl::move(x.second);
 	}
 };
 

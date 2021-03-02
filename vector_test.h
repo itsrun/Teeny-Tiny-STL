@@ -54,9 +54,9 @@ void vector_test() {
 	API_TEST_END();
 	PERF_TEST_START();
 	cout << "[------------------- Container test : vector -------------------]\n";
-	PERF_TEST00(vector, push_back, 500000, 5000000, 50000000);
-	PERF_TEST00(vector, emplace_back, 500000, 5000000, 50000000);
-	PERF_TEST11(vector, insert, begin, 20000, 50000, 100000);
+	PERF_TEST00(vector, push_back, 500000, 1000000, 10000000);
+	PERF_TEST00(vector, emplace_back, 500000, 1000000, 10000000);
+	PERF_TEST11(vector, insert, begin, 10000, 30000, 100000);
 	PERF_TEST_END();
 }
 

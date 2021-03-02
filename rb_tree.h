@@ -133,7 +133,7 @@ struct rb_tree_iterator : public rb_tree_iterator_base {
 		return tmp;
 	}
 
-	reference operator*() const { return ((node_ptr)node)->value; }
+	reference operator*() const { return ((node_ptr&)node)->value; }
 	pointer operator->() const { return &(operator*()); }
 
 	rb_tree_iterator() {}
@@ -434,9 +434,10 @@ protected:
 	}
 
 	void erase_since(base_ptr x) {
+		base_ptr y;
 		while (x) {
 			erase_since(x->right);
-			base_ptr y = x->left;
+			y = x->left;
 			destroy_node((node_ptr&)x);
 			x = y;
 			--node_count;
@@ -627,6 +628,17 @@ public:
 		return __insert(prev, val);
 	}
 	
+	iterator insert_equal(value_type&& val) {
+		node_ptr prev = header;
+		node_ptr curr = (node_ptr&)header->parent;
+		node_ptr add = create_node(lmstl::move(val));
+		while (curr) {
+			prev = curr;
+			curr = (node_ptr&)(key_compare(KeyOfValue()(add->value), key(curr)) ? curr->left : curr->right);
+		}
+		return __insert_node_at(prev, add);
+	}
+	
 	template <typename... Args>
 	iterator emplace_equal(Args&&... args) {
 		node_ptr prev = header;
@@ -662,6 +674,27 @@ public:
 		}
 		if (key_compare(key(tmp.node), KeyOfValue()(val)))
 			return pair<iterator, bool>(__insert(prev, val), true);
+		return pair<iterator, bool>(tmp, false);
+	}
+	
+	pair<iterator, bool> insert_unique(value_type&& val) {
+		node_ptr prev = header;
+		node_ptr curr = (node_ptr&)header->parent;
+		node_ptr add = create_node(lmstl::move(val));
+		bool comp = true;
+		while (curr) {
+			prev = curr;
+			comp = key_compare(KeyOfValue()(add->value), key(curr));
+			curr = (node_ptr&)(comp ? curr->left : curr->right);
+		}
+		iterator tmp = iterator(prev);
+		if (comp) {
+			if (prev == leftmost())
+				return pair<iterator, bool>(__insert_node_at(prev, add), true);
+			--tmp;
+		}
+		if (key_compare(key(tmp.node), KeyOfValue()(add->value)))
+			return pair<iterator, bool>(__insert_node_at(prev, add), true);
 		return pair<iterator, bool>(tmp, false);
 	}
 	
