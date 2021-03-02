@@ -1,6 +1,6 @@
 # LMSTL
 
-基于侯捷《STL源码剖析》完成。在原书基础上改写为非常简陋的符合C++11标准的STL。
+基于侯捷《STL源码剖析》完成。在原书基础上改写为非常简陋的C++11 STL。
 
 Based on *The Annotated STL Sources (using SGI STL)* by Hou Jie. I use some new features in C++11 to rewrite the origin codes in the book.
 
