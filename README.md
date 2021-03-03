@@ -10,9 +10,9 @@ Please let me know if there's any mistake !
 
 ### About
 
-LMSTL_test.cpp测试各容器的正确性和性能
+LMSTL_test.cpp测试各容器和算法的正确性和性能
 
-LMSTL_test.cpp checks the containers' correctness and performance ( Current Progress :  vector\map\list )
+LMSTL_test.cpp checks the correctness and performance of containers and algorithms ( Current Progress :  vector\map\list )
 
 ### Test Environment
 
