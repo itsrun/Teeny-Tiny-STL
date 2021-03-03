@@ -219,7 +219,7 @@ protected:
 public:
 	unary_negate(const Predicate& upred):
 		pred(upred) {}
-	bool operator()(const Predicate::argument_type& x) const {
+	bool operator()(const typename Predicate::argument_type& x) const {
 		return !pred(x);
 	}
 };
@@ -238,13 +238,13 @@ protected:
 public:
 	binary_negate(const Predicate& upred):
 		pred(upred) {}
-	bool operator()(const Predicate::first_argument_type& x, const Predicate::second_argument_type& y) const {
+	bool operator()(const typename Predicate::first_argument_type& x, const typename Predicate::second_argument_type& y) const {
 		return !pred(x, y);
 	}
 };
 
 template <typename Operation1, typename Operation2>
-class unary_compose : public unary_function<typename Operation2::argument_type, typename operation1::result_type> {
+class unary_compose : public unary_function<typename Operation2::argument_type, typename Operation1::result_type> {
 protected:
 	Operation1 op1;
 	Operation2 op2;
@@ -252,14 +252,14 @@ protected:
 public:
 	unary_compose(const Operation1& x, const Operation2& y):
 		op1(x), op2(y) {}
-	typename Operation1::result_type operator()(const Operation2 : argument_type & x) const {
+	typename Operation1::result_type operator()(const typename Operation2::argument_type& x) const {
 		return op1(op2(x));
 	}
 };
 
 template <typename Operation1, typename Operation2>
 inline unary_compose<Operation1, Operation2> compose1(const Operation1& op1, const Operation2& op2) {
-	return unary_compose(op1, op2);
+	return unary_compose<Operation1, Operation2>(op1, op2);
 }
 
 template <typename Operation1, typename Operation2, typename Operation3>
@@ -270,7 +270,7 @@ protected:
 	Operation3 op3;
 
 public:
-	binary_compose(const Operation1&x, const Operation2&y, const Operation3&Z):
+	binary_compose(const Operation1&x, const Operation2&y, const Operation3&z):
 		op1(x), op2(y), op3(z) {}
 
 	typename Operation1::result_type operator()(const typename Operation2::argument_type& x) const {
@@ -280,7 +280,7 @@ public:
 
 template <typename Operation1, typename Operation2, typename Operation3>
 inline binary_compose<Operation1, Operation2, Operation3> compose2(const Operation1& op1, const Operation2& op2, const Operation3& op3) {
-	return binary_compose(op1, op2, op3);
+	return binary_compose<Operation1, Operation2, Operation3>(op1, op2, op3);
 }
 
 template <typename Arg, typename Result>

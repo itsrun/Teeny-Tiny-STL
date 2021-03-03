@@ -28,6 +28,7 @@ void vector_test() {
 	API_TEST_EACH3(mv, sv, insert, mv.cbegin(), mv2.rbegin(), mv2.rend(), sv.cbegin(), sv2.rbegin(), sv2.rend());
 	API_TEST11(mv, sv, erase, begin, , 2);
 	API_TEST01(mv, sv, pop_back, );
+	API_TEST22(mv, sv, erase, begin, end, , 0, , 0);
 	vector<int> mv3(mv2);
 	std::vector<int> sv3(sv2);
 	API_TEST_EACH1(mv, sv, swap, mv3, sv3);

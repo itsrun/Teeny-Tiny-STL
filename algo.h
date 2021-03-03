@@ -4,6 +4,7 @@
 #include "algobase.h"
 #include "iterator.h"
 #include "heap_algo.h"
+#include "memory.h"
 
 #define __lmstl_threshold 16
 
@@ -674,6 +675,12 @@ inline void nth_element(RandomAccessIterator beg, RandomAccessIterator nth, Rand
 			end = piv;
 	}
 	__insert_sort(beg, end);
+}
+
+template <typename BidirectIter>
+inline void inplace_merge(BidirectIter beg, BidirectIter mid, BidirectIter end) {
+	if (beg == mid || mid == end)
+		return;
 }
 
 }

@@ -107,15 +107,9 @@ public:
 	bool empty() const noexcept { return (start == finish); }
 
 	void swap(vector<T, Alloc>& x) {
-		iterator tmp = start;
-		start = x.start;
-		x.start = tmp;
-		tmp = finish;
-		finish = x.finish;
-		x.finish = tmp;
-		tmp = end_of_storage;
-		end_of_storage = x.end_of_storage;
-		x.end_of_storage = tmp;
+		lmstl::swap(start, x.start);
+		lmstl::swap(finish, x.finish);
+		lmstl::swap(end_of_storage, x.end_of_storage);
 	}
 
 	reference operator[](size_type n) {
@@ -182,17 +176,17 @@ public:
 		destroy(finish);
 	}
 
-	iterator erase(iterator beg, iterator end) {
-		__THROW_OUT_OF_RANGE_ERROR(!(beg <= end && beg >= start && end <= finish), "Range Error");
-		iterator p = lmstl::copy(end, finish, beg);
+	iterator erase(iterator xbeg, iterator xend) {
+		__THROW_OUT_OF_RANGE_ERROR(!(xbeg <= xend && xbeg >= start && xend <= finish), "Range Error");
+		iterator p = lmstl::move(xend, finish, xbeg);
 		destroy(p, finish);
-		finish = finish - (end - beg);
-		return beg;
+		finish = finish - (xend - xbeg);
+		return xbeg;
 	}
 	iterator erase(iterator pos) {
 		__THROW_OUT_OF_RANGE_ERROR((pos > finish || pos < start), "Range Error");
 		if (pos + 1 != finish)
-			lmstl::copy(pos + 1, finish, pos);
+			lmstl::move(pos + 1, finish, pos);
 		--finish;
 		destroy(finish);
 		return pos;

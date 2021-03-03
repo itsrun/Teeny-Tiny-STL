@@ -102,6 +102,9 @@
     <ClInclude Include="map_test.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="memory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LMSTL_test.cpp">
