@@ -214,7 +214,7 @@ public:
 		const size_type len = (size_type)lmstl::distance(beg, end);
 		if ((size_type)(end_of_storage - finish) >= len) {
 			if (after_nums > len) {
-				lmstl::uninitialized_copy(finish - len, finish, finish);
+				lmstl::uninitialized_move(finish - len, finish, finish);
 				lmstl::move_backward(pos, finish - len, finish);
 				lmstl::copy(beg, end, pos);
 			}
@@ -260,7 +260,7 @@ public:
 		const size_type len = (size_type)lmstl::distance(beg, end);
 		if ((size_type)(end_of_storage - finish) >= len) {
 			if (after_nums > len) {
-				lmstl::uninitialized_copy(finish - len, finish, finish);
+				lmstl::uninitialized_move(finish - len, finish, finish);
 				lmstl::move_backward(pos, finish - len, finish);
 				lmstl::copy(beg, end, pos);
 			}

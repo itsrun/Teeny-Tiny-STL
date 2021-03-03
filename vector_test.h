@@ -48,6 +48,7 @@ void vector_test() {
 	API_TEST33(msv, ssv, insert, begin, rbegin, rend, , 2, , 0, , 0);
 	API_TEST22(msv, ssv, erase, begin, begin, , 1, , 3);
 	API_TEST_EACH3(msv, ssv, insert, msv.cbegin(), msv2.rbegin(), msv2.rend(), ssv.cbegin(), ssv2.rbegin(), ssv2.rend());
+	API_TEST_EACH3(msv, ssv, insert, msv.begin(), msv2.begin(), msv2.end(), ssv.begin(), ssv2.begin(), ssv2.end());
 	API_TEST11(msv, ssv, erase, begin, , 2);
 	API_TEST01(msv, ssv, pop_back, );
 	msv.clear();
